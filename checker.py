@@ -30,6 +30,7 @@ SteamPass = arr[3]
 EmailOld = arr[4]
 EmailOldPass = arr[5]
 steamCodeString = '/html/body/div[5]/div/div[1]/div[1]/div/div[2]/div[2]/div/div/div/div/div/div/div[2]/div[1]/div[3]/div[2]/div/div/div/div/div/div/div/div/div/div/center[1]/div/div/table/tbody/tr/td/table/tbody/tr/td/table/tbody/tr[1]/td/table/tbody/tr[2]/td/table[3]/tbody/tr/td/table/tbody/tr/td/table/tbody/tr/td'
+steamCodeStringOld = '/html/body/div[2]/div/div[5]/div/div/div/div/div/div/div/div/div/div/div/div/div/div[6]/div[2]/div[2]/div[10]/div/div/div/div[4]/div/div[2]/div/div/div/div/center[1]/table/tbody/tr/td/table/tbody/tr/td/table/tbody/tr[1]/td/table/tbody/tr[2]/td/table[3]/tbody/tr/td/table/tbody/tr/td/table/tbody/tr/td'
 
 def passgen(x):
     characters = string.ascii_letters + string.digits
@@ -62,6 +63,13 @@ def steam(wait):
 
 def shit(driver):
     time.sleep(0.3)
+    try:
+        time.sleep(0.4)
+        driver.find_element_by_css_selector('.c2182')
+        driver.find_element_by_css_selector('.c2182').click()
+    except NoSuchElementException:
+        time.sleep(0)
+
     try:
         time.sleep(0.4)
         driver.find_element_by_css_selector('.c01180')
@@ -162,11 +170,12 @@ def main():
     wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '.tooltip-0-2-167 > div:nth-child(1) > div:nth-child(1) > div:nth-child(1) > input:nth-child(1)'))).send_keys(EmailPassNew)
     wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, 'div.field-0-2-146:nth-child(14) > div:nth-child(2) > div:nth-child(1) > div:nth-child(1) > input:nth-child(1)'))).send_keys(EmailPassNew)
     wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, 'button.base-0-2-82:nth-child(20) > span:nth-child(1)'))).click()
-    wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, 'button.base-0-2-114:nth-child(10) > span:nth-child(1)'))).click()
+    wait.until(ec.element_to_be_clickable((By.XPATH, '/html/body/div[2]/div[2]/div/div/div[2]/div/button/span'))).click()
     print(EmailOld + ':' + EmailPassNew)
     driver.get('https://e.mail.ru/inbox/')
     shit(driver)
     pochtaIsNew = 0
+    shit(driver)
     steam(wait)
     try:
         driver.find_element_by_css_selector('.b-checkbox_transparent > div:nth-child(1)')
@@ -175,12 +184,14 @@ def main():
         pochtaIsNew = 1
 
     print(pochtaIsNew)
+    shit(driver)
     steam(wait)
+    shit(driver)
     driver.execute_script("arguments[0].click();", driver.find_element_by_xpath('//*[@title="Steam Support <noreply@steampowered.com>"]'))
     if pochtaIsNew == 1:
         cont = wait.until(ec.element_to_be_clickable((By.XPATH, steamCodeString))).text
     else:
-        cont = wait.until(ec.element_to_be_clickable((By.XPATH, steamCodeString))).text
+        cont = wait.until(ec.element_to_be_clickable((By.XPATH, steamCodeStringOld))).text
     #if pochtaIsNew == 1:
     #   cont = wait.until(ec.element_to_be_clickable((By.XPATH,
     #                                                  '/html/body/div[5]/div/div[1]/div[1]/div/div[2]/div[2]/div/div/div/div/div/div/div[2]/div[1]/div[2]/div[2]/div/div/div/div/div/div/div/div/div/div/table/tbody/tr[2]/td/table/tbody/tr[3]/td/div/span'))).text
@@ -263,7 +274,7 @@ def main():
     if pochtaIsNew == 1:
         cont = wait.until(ec.element_to_be_clickable((By.XPATH, steamCodeString))).text
     else:
-        cont = wait.until(ec.element_to_be_clickable((By.XPATH, steamCodeString))).text
+        cont = wait.until(ec.element_to_be_clickable((By.XPATH, steamCodeStringOld))).text
     driver.get('https://e.mail.ru/inbox/')
     shit(driver)
     wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '#PH_logoutLink')))
@@ -326,15 +337,25 @@ def main():
     if pochtaIsNew == 1:
         cont = wait.until(ec.element_to_be_clickable((By.XPATH, steamCodeString))).text
     else:
-        cont = wait.until(ec.element_to_be_clickable((By.XPATH, steamCodeString))).text
+        cont = wait.until(ec.element_to_be_clickable((By.XPATH, steamCodeStringOld))).text
 
     #driver.get('https://e.mail.ru/inbox/')
     driver.switch_to.window(driver.window_handles[1])
     wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '#email_change_code'))).send_keys(cont)
     wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, 'div.account_recovery_submit:nth-child(2) > input:nth-child(1)'))).click()
     print(EmailNew+':'+EmailNewPass+':'+Steam+':'+SteamPassNew+':'+EmailOld+':'+EmailPassNew)
-    driver.close()
-    driver.switch_to.window(driver.window_handles[0])
+    wait.until(ec.element_to_be_clickable(
+        (By.CSS_SELECTOR, 'div.account_setting_block:nth-child(6) > div:nth-child(1) > div:nth-child(2) > div:nth-child(1) > a:nth-child(1)'))).click()
+    wait.until(ec.element_to_be_clickable(
+        (By.CSS_SELECTOR,
+         '#email_authenticator_form > div:nth-child(3) > div:nth-child(2) > label:nth-child(1)'))).click()
+    wait.until(ec.element_to_be_clickable((By.XPATH, '//*[@id="input_username"]'))).send_keys(Steam)
+    wait.until(ec.element_to_be_clickable((By.XPATH, '//*[@id="input_password"]'))).send_keys(SteamPassNew)
+    try:
+        driver.find_element_by_partial_link_text('rendercap')
+
+    except NoSuchElementException:
+        wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '.btn_blue_steamui'))).click()
     driver.close()
 
 
