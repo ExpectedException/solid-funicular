@@ -67,21 +67,19 @@ def main():
     wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '#aaa__input'))).send_keys(accname)
     wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '#password'))).send_keys(Passwd)
     wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '#repeatPassword'))).send_keys(Passwd)
-    wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '#phone-number__phone-input'))).send_keys('9789601886') #1
-    #wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '#phone-number__phone-input'))).send_keys('9787393986') #2
-    #wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '#phone-number__phone-input'))).send_keys('9785751897') #3
-    #wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '#phone-number__phone-input'))).send_keys('9785813536') #4
+    #wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '#phone-number__phone-input'))).send_keys('9789601886') #1
+    wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '#phone-number__phone-input'))).send_keys('9787393986') #2
     time.sleep(0.5)
     wait.until(ec.element_to_be_clickable((By.XPATH, '/html/body/div[1]/div[3]/div[3]/div/div/div/form/button'))).click()
     wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '.c2182'))).click()
     driver.get('https://id.mail.ru/contacts')
-    wait.until(ec.element_to_be_clickable((By.XPATH, '/html/body/div/div[1]/div[3]/div/div[3]/div/div/div[1]/div/div[2]/div/div[2]/button/div/svg'))).click()
+    wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, 'button.base-0-2-77:nth-child(1) > div:nth-child(1) > svg:nth-child(1)'))).click()
     wait.until(ec.element_to_be_clickable((By.XPATH, '/html/body/div[2]/div[2]/div/div/div[2]/form/div[4]/button[1]/span'))).click()
     wait.until(ec.element_to_be_clickable((By.XPATH, '/html/body/div[2]/div[2]/div/div/div[2]/div/button/span'))).click()
     f = open("data_done100percent.txt", "a")
     data = str(Email + ':' + Passwd + ':' + '\n')
     f.write(data)
     f.close()
-
+    driver.close()
 
 main()
