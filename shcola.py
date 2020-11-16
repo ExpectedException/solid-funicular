@@ -1,5 +1,4 @@
 from selenium.webdriver.common.by import By
-from selenium.webdriver import Firefox
 from selenium import webdriver
 from selenium.webdriver.firefox.options import Options
 from selenium.common.exceptions import NoSuchElementException
@@ -7,17 +6,12 @@ import time
 import datetime
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as ec
-import string
-from random import *
-import json
-from nickname_generator import generate
 from selenium.webdriver.firefox.firefox_profile import FirefoxProfile
 from selenium.webdriver.firefox.firefox_binary import FirefoxBinary
-from selenium.webdriver.common.keys import Keys
 from datetime import datetime, time
 from time import sleep
-
-
+from threading import Thread
+import logging
 
 
 class AnyEc:
@@ -46,6 +40,11 @@ def wait_start(runTime, action):
     return action
 
 
+def Convert(stri):
+    li = list(stri.split(":"))
+    return li
+
+
 def retoggleAllTheAddons(driver):
     driver.get("about:addons")
     driver.find_element_by_id("category-extension").click()
@@ -59,11 +58,9 @@ def retoggleAllTheAddons(driver):
         }
     """)
 
-login = 'kogevnikov_i'
-password = 'Cfyzghjdthztnfrrfeynsbcnfdbngk.cs!225'
 
-
-def posetil(wait, driver, tvar):
+def posetil(wait, driver, tvar, user):
+    logging.info(user + ' ' + str(datetime.now())+' '+driver.title+" visited")
     wait.until(ec.element_to_be_clickable((By.LINK_TEXT, 'Посещаемость')))
     try:
         driver.execute_script("""
@@ -78,30 +75,16 @@ def posetil(wait, driver, tvar):
     wait.until(ec.element_to_be_clickable((By.LINK_TEXT, 'Посещаемость')))
     try:
         driver.find_element_by_css_selector('.fgrouplabel > label')
-        driver.execute_script("""
-                            var xpath = "//a[text()='Присутствовал']";
-                            var matchingElement = document.evaluate(xpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
-                            if (matchingElement !== null) {
-                            matchingElement.checked = true;
-                            }""")
+        wait.until(ec.element_to_be_clickable((By.XPATH, "//div[@id='fgroup_id_statusarray']/fieldset/span/label/span")))
+        logging.info(user + ' ' + str(datetime.now())+' '+driver.title+" checked")
     except NoSuchElementException:
         sleep(0)
         tvar = 1
     if tvar != 1:
-        wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '.fgrouplabel')))
-        try:
-            sleep(5)
-            driver.execute_script("""
-                    var xpath = "//a[text()='Сохранить']";
-                    var matchingElement = document.evaluate(xpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
-                    if (matchingElement !== null) {
-                    matchingElement.click();
-                    }""")
-        except NoSuchElementException:
-            sleep(0)
+        wait.until(ec.element_to_be_clickable((By.XPATH, "//input[@id='id_status_375")))
+        logging.info(user + ' ' + str(datetime.now())+' '+driver.title+" sent")
 
-
-def main():
+def main(login, password):
     options = Options()
     options.headless = True
     binary = FirefoxBinary("C:\\Program Files\\Mozilla Firefox\\firefox.exe")
@@ -116,21 +99,45 @@ def main():
     wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '#password'))).send_keys(password)
     wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '#loginbtn'))).click()
     driver.get('https://testmoodle.sevsu.ru/mod/attendance/view.php?id=18646&view=5')  #ПВС
-    posetil(wait, driver, tvar)
+    posetil(wait, driver, tvar, login)
     driver.get('https://testmoodle.sevsu.ru/mod/attendance/view.php?id=7812&view=5')  #агентное моделирование
-    posetil(wait, driver, tvar)
+    posetil(wait, driver, tvar, login)
     driver.get('https://testmoodle.sevsu.ru/mod/attendance/view.php?id=18405&view=5')  #Вычислительные системы
-    posetil(wait, driver, tvar)
+    posetil(wait, driver, tvar, login)
     driver.get('https://testmoodle.sevsu.ru/mod/attendance/view.php?id=70612&view=5')  #Основы теории экспертных систем
-    posetil(wait, driver, tvar)
+    posetil(wait, driver, tvar, login)
     driver.get('https://testmoodle.sevsu.ru/mod/attendance/view.php?id=71790&view=5')  # оср
-    posetil(wait, driver, tvar)
+    posetil(wait, driver, tvar, login)
     driver.get('https://testmoodle.sevsu.ru/mod/attendance/view.php?id=18421&view=5')  # Проектирование микропроцессорных и компьютерных систем
-    posetil(wait, driver, tvar)
+    posetil(wait, driver, tvar, login)
     driver.get('https://testmoodle.sevsu.ru/mod/attendance/view.php?id=18389&view=5')  # Сети и телекоммуникации
+    posetil(wait, driver, tvar, login)
     driver.close()
 
 
 if __name__ == '__main__':
-    main()
+    LOG_FILENAME = 'WKOLA.log'
+    logging.basicConfig(filename=LOG_FILENAME, level=logging.INFO)
+    file = open("schol_DATA", "r")
+    line_count = 0
+    for line in file:
+        if line != "\n":
+            line_count += 1
+    file.close()
+    file1 = open('schol_DATA', 'r')
+    Lines = file1.readlines()
+    arr = []
+    for line in Lines:
+        tarr = Convert(line.strip())
+        arr.append(tarr)
+    threads = []
+    for n in range(line_count):
+        t = Thread(target=main, args=(arr[n][0], arr[n][1]))
+        t.start()
+        logging.info(t)
+        threads.append(t)
+    for t in threads:
+        t.join()
+
+
 
