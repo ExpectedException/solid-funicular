@@ -68,8 +68,7 @@ class MailRuImap:
         return soup.find_all("span")[2].get_text()
 
 
-
-imap_user = ''
-imap_pass = ''
+imap_user = 'yajelaiuyashik4@mail.ru'
+imap_pass = 'lbvfcgblfhfc322'
 ms = MailRuImap(imap_user, imap_pass)
 print(ms.GetAccessCode())
