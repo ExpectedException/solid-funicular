@@ -3,6 +3,7 @@ from selenium.webdriver import Firefox
 from selenium import webdriver
 from selenium.webdriver.firefox.options import Options
 from selenium.common.exceptions import NoSuchElementException
+from selenium.common.exceptions import ElementNotInteractableException
 import time
 import datetime
 from selenium.webdriver.support.wait import WebDriverWait
@@ -21,20 +22,95 @@ def Convert(string):
     return li
 
 
-steamCodeString = '/html/body/div[5]/div/div[1]/div[1]/div/div[2]/div[2]/div/div/div/div/div/div/div[2]/div[1]/div[3]/div[2]/div/div/div/div/div/div/div/div/div/div/center[1]/div/div/table/tbody/tr/td/table/tbody/tr/td/table/tbody/tr[1]/td/table/tbody/tr[2]/td/table[3]/tbody/tr/td/table/tbody/tr/td/table/tbody/tr/td'
+steamCodeString = '/html/body/div[5]/div/div[1]/div[1]/div/div[2]/span/div[2]/div/div/div/div/div/div/div[2]/div[1]/div[3]/div[2]/div/div/div/div/div/div/div/div/div/div/center[1]/div/div/table/tbody/tr/td/table/tbody/tr/td/table/tbody/tr[1]/td/table/tbody/tr[2]/td/table[3]/tbody/tr/td/table/tbody/tr/td/table/tbody/tr/td'
 steamCodeStringOld = '/html/body/div[2]/div/div[5]/div/div/div/div/div/div/div/div/div/div/div/div/div/div[6]/div[2]/div[2]/div[10]/div/div/div/div[4]/div/div[2]/div/div/div/div/center[1]/table/tbody/tr/td/table/tbody/tr/td/table/tbody/tr[1]/td/table/tbody/tr[2]/td/table[3]/tbody/tr/td/table/tbody/tr/td/table/tbody/tr/td'
 
 
-def readData(line):
-    arr = (Convert(data))
+def loginIntoSteam(driver, wait, EmailNew, EmailNewPass, EmailOld, EmailOldPass):
+    captcha = 0
+    invalid = 0
+    #captcha
+    try:
+        time.sleep(2)
+        driver.find_element_by_css_selector('#captchaRefreshLink').click()
+        captcha = 1
+    except ElementNotInteractableException:
+        captcha = 0
+    wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '.btn_blue_steamui'))).click()
+    #invalid
+    try:
+        time.sleep(2)
+        if driver.find_element_by_css_selector('#error_display').text == 'The account name or password that you have entered is incorrect.':
+            invalid = 1
+        else:
+            invalid = 0
 
-    return arr
+    except NoSuchElementException:
+        pass
+
+    if invalid == 1:
+        f = open("invalidEmailS.txt", "a")
+        data = str(EmailNew + ' ' + EmailNewPass + '         ' + EmailOld + ' ' + EmailOldPass)
+        f.write(data)
+        f.close()
+        driver.close()
+        driver.switch_to.window(driver.window_handles[0])
+        driver.close()
+    else:
+        wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '.user_avatar'))).click()
 
 
 def passgen(x):
     characters = string.ascii_letters + string.digits
     password = "".join(choice(characters) for x in range(randint(10, 12)))
     return password
+
+
+def findSteamCode(driver, wait):
+    driver.get('https://e.mail.ru/inbox/')
+    pochtaIsNew = 0
+    steam(wait)
+    try:
+        driver.find_element_by_css_selector('.b-checkbox_transparent > div:nth-child(1)')
+
+    except NoSuchElementException:
+        pochtaIsNew = 1
+
+    print(pochtaIsNew)
+    steam(wait)
+    time.sleep(0.5)
+    driver.execute_script("arguments[0].click();",
+                          driver.find_element_by_xpath('//*[@title="Steam Support <noreply@steampowered.com>"]'))
+    if pochtaIsNew == 1:
+        cont = wait.until(ec.element_to_be_clickable((By.XPATH, steamCodeString))).text
+    else:
+        cont = wait.until(ec.element_to_be_clickable((By.XPATH, steamCodeStringOld))).text
+    return cont
+
+
+def findSteamCodeGuard(driver, wait):
+    driver.get('https://e.mail.ru/inbox/')
+    shit(driver)
+    time.sleep(5)
+    pochtaIsNew = 0
+    steam(wait)
+    try:
+        driver.find_element_by_css_selector('.b-checkbox_transparent > div:nth-child(1)')
+
+    except NoSuchElementException:
+        pochtaIsNew = 1
+
+    print(pochtaIsNew)
+    steam(wait)
+    time.sleep(0.5)
+    shit(driver)
+    driver.execute_script("arguments[0].click();",
+                          driver.find_element_by_xpath('//*[@title="Steam Support <noreply@steampowered.com>"]'))
+    if pochtaIsNew == 1:
+        cont = wait.until(ec.element_to_be_clickable((By.XPATH, '/html/body/div[5]/div/div[1]/div[1]/div/div[2]/span/div[2]/div/div/div/div/div/div/div[2]/div[1]/div[3]/div[2]/div/div/div/div/div/div/div/div/div/div/table/tbody/tr[2]/td/table/tbody/tr[3]/td/div/span'))).text
+    else:
+        cont = wait.until(ec.element_to_be_clickable((By.XPATH, steamCodeStringOld))).text
+    return cont
 
 
 class AnyEc:
@@ -65,42 +141,58 @@ def shit(driver):
     time.sleep(0.3)
     try:
         time.sleep(0.4)
-        driver.find_element_by_css_selector('.c2182')
         driver.find_element_by_css_selector('.c2182').click()
     except NoSuchElementException:
-        time.sleep(0)
+        pass
 
     try:
         time.sleep(0.4)
-        driver.find_element_by_css_selector('.c01180')
         driver.find_element_by_css_selector('.c01180').click()
 
     except NoSuchElementException:
-        time.sleep(0)
+        pass
 
     try:
         time.sleep(0.2)
-        driver.find_element_by_css_selector('.c01159')
         driver.find_element_by_css_selector('.c01159').click()
 
     except NoSuchElementException:
-        time.sleep(0)
+        pass
 
     try:
         time.sleep(0.4)
-        driver.find_element_by_css_selector('.c01156')
         driver.find_element_by_css_selector('.c01156').click()
 
     except NoSuchElementException:
-        time.sleep(0)
+        pass
 
     try:
         time.sleep(0.4)
-        driver.find_element_by_css_selector('.c01177')
         driver.find_element_by_css_selector('.c01177').click()
 
     except NoSuchElementException:
-        time.sleep(0)
+        pass
+
+    try:
+        time.sleep(0.4)
+        driver.find_element_by_css_selector('.cross-0-2-70 > svg:nth-child(1)').click()
+
+    except NoSuchElementException:
+        pass
+
+    try:
+        time.sleep(0.4)
+        driver.find_element_by_css_selector('.cross-0-2-23 > svg:nth-child(1) > path:nth-child(1)').click()
+
+    except NoSuchElementException:
+        pass
+
+    try:
+        time.sleep(0.2)
+        driver.find_element_by_css_selector('.c2117 > svg:nth-child(1)').click()
+
+    except NoSuchElementException:
+        pass
 
 
 def retoggleAllTheAddons(driver):
@@ -149,14 +241,7 @@ def main(newLine):
     driver.switch_to.window(window_after)
     wait.until(ec.element_to_be_clickable((By.XPATH, '//*[@id="input_username"]'))).send_keys(Steam)
     wait.until(ec.element_to_be_clickable((By.XPATH, '//*[@id="input_password"]'))).send_keys(SteamPass)
-    time.sleep(1)
-    try:
-        driver.find_element_by_partial_link_text('rendercap')
-
-    except NoSuchElementException:
-        wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '.btn_blue_steamui'))).click()
-
-    wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '.user_avatar'))).click()
+    loginIntoSteam(driver, wait, EmailNew, EmailNewPass, EmailOld, EmailOldPass)
     url = driver.current_url
     print(driver.current_url)
     driver.get('https://store.steampowered.com/account/')
@@ -242,11 +327,11 @@ def main(newLine):
     driver.switch_to.window(driver.window_handles[1])
     SteamPassNew = passgen(randint(1, 200))
     print(SteamPassNew)
-    fl = open("checker.txt", "a")
+    f = open("checker.txt", "a")
     data = str(
         EmailNew + ' ' + EmailNewPass + ' ' + Steam + ' ' + SteamPassNew + '  ' + url + '     ' + EmailOld + ' ' + EmailPassNew + '\n')
-    fl.write(data)
-    fl.close()
+    f.write(data)
+    f.close()
     print(EmailNew + ':' + EmailNewPass + ':' + Steam + ':' + SteamPassNew + ':' + EmailOld + ':' + EmailPassNew)
     wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '#forgot_login_code'))).send_keys(cont)
     wait.until(ec.element_to_be_clickable(
@@ -278,13 +363,7 @@ def main(newLine):
     driver.get('https://store.steampowered.com/login/')
     wait.until(ec.element_to_be_clickable((By.XPATH, '//*[@id="input_username"]'))).send_keys(Steam)
     wait.until(ec.element_to_be_clickable((By.XPATH, '//*[@id="input_password"]'))).send_keys(SteamPassNew)
-    try:
-        driver.find_element_by_partial_link_text('rendercap')
-
-    except NoSuchElementException:
-        wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '.btn_blue_steamui'))).click()
-
-    wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '.user_avatar'))).click()
+    loginIntoSteam(driver, wait, EmailNew, EmailNewPass, EmailOld, EmailOldPass)
     driver.get('https://store.steampowered.com/account/')
     wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR,
                                            'div.account_setting_block:nth-child(4) > div:nth-child(1) > div:nth-child(3) > a:nth-child(1)'))).click()
@@ -342,25 +421,7 @@ def main(newLine):
     # wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '.c0197'))).click()
     # wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '.c01125'))).click()
     # wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '.c0124 > svg:nth-child(1)'))).click()
-    driver.get('https://e.mail.ru/inbox/')
-    pochtaIsNew = 0
-    steam(wait)
-    try:
-        driver.find_element_by_css_selector('.b-checkbox_transparent > div:nth-child(1)')
-
-    except NoSuchElementException:
-        pochtaIsNew = 1
-
-    print(pochtaIsNew)
-    steam(wait)
-    time.sleep(0.5)
-    driver.execute_script("arguments[0].click();",
-                          driver.find_element_by_xpath('//*[@title="Steam Support <noreply@steampowered.com>"]'))
-    if pochtaIsNew == 1:
-        cont = wait.until(ec.element_to_be_clickable((By.XPATH, steamCodeString))).text
-    else:
-        cont = wait.until(ec.element_to_be_clickable((By.XPATH, steamCodeStringOld))).text
-
+    cont = findSteamCode(driver, wait)
     # driver.get('https://e.mail.ru/inbox/')
     driver.switch_to.window(driver.window_handles[1])
     wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '#email_change_code'))).send_keys(cont)
@@ -379,15 +440,54 @@ def main(newLine):
 
     except NoSuchElementException:
         wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '.btn_blue_steamui'))).click()
-    driver.close()
+    driver.switch_to.window(driver.window_handles[0])
+    driver.get('https://e.mail.ru/inbox/')
+    shit(driver)
+    cont = findSteamCodeGuard(driver, wait)
+    driver.switch_to.window(driver.window_handles[1])
+    wait.until(ec.element_to_be_clickable((By.XPATH, '//*[@id="authcode"]'))).send_keys(cont)
+    wait.until(ec.element_to_be_clickable((By.XPATH, '/html/body/div[3]/div[3]/div/div/div/form/div[4]/div[1]/div[1]/div[1]'))).click()
+    wait.until(ec.element_to_be_clickable(
+        (By.XPATH, '//*[@id="success_continue_btn"]'))).click()
+    wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '.user_avatar'))).click()
+    wait.until(ec.element_to_be_clickable((By.XPATH, '/html/body/div[1]/div[7]/div[3]/div[1]/div[2]/div/div[1]/div[3]/div/div[1]/a/span[1]'))).click()
+    time.sleep(0.5)
+    wait.until(ec.element_to_be_clickable((By.XPATH, '/html/body/div[1]/div[7]/div[3]/div/div[2]/div[1]/a[1]'))).click()
+    time.sleep(0.5)
+    #manageFriendsList
+    wait.until(ec.element_to_be_clickable((By.XPATH, '/html/body/div[1]/div[7]/div[3]/div/div[2]/div[2]/div/div[1]/button[1]/span'))).click()
+    time.sleep(0.5)
+    wait.until(ec.element_to_be_clickable((By.XPATH, '/html/body/div[1]/div[7]/div[3]/div/div[2]/div[2]/div/div[2]/div[1]/span/span[2]'))).click()
+    #removeFriend
+    wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, 'span.manage_action:nth-child(1) > span:nth-child(1)'))).click()
+    time.sleep(0.5)
+    wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '.user_avatar'))).click()
+    driver.switch_to.window(driver.window_handles[0])
+    shit(driver)
+    wait.until(ec.element_to_be_clickable((By.XPATH, '/html/body/div[5]/div/div[1]/div[1]/div/div[2]/div[2]/div/div/div/div/div/div/div[2]/div[1]/div[3]/div[2]/div/div/div/div/div/div/div/div/div/div/table/tbody/tr[2]/td/table/tbody/tr[4]/td/p[4]/a'))).click()
+    driver.switch_to.window(driver.window_handles[1])
+    wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '.help_wizard_button > span:nth-child(1)'))).click()
+    time.sleep(1)
+    wait.until(ec.element_to_be_clickable((By.XPATH, '/html/body/div[1]/div[7]/div[2]/div[2]/div/div[2]/div/div/div[3]/a/span'))).click()
+    wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, 'a.help_wizard_button:nth-child(5) > span:nth-child(1)'))).click()
+    code = wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '.code_text'))).text
+    unlockurl = str('https://help.steampowered.com/en/wizard/HelpSelfUnlock?code=' + code + '&account=' + Steam)
+    print(unlockurl)
+    f = open("checker_withURL.txt", "a")
+    data = str(
+        EmailNew + ' ' + EmailNewPass + ' ' + Steam + ' ' + SteamPassNew + '  ' + url + '    ' + unlockurl + ' ' + EmailOld + ' ' + EmailPassNew + '\n')
+    f.write(data)
+    f.close()
+    #driver.close()
 
 
 if __name__ == '__main__':
-    file = open(r'C:\Users\PussyDestroyer\PycharmProjects\chezahernya\c!replace.txt', 'r')
-    Lines = file.readlines()
+    frep = open(r'C:\Users\PussyDestroyer\PycharmProjects\chezahernya\c!replace.txt', 'r')
+    Lines = frep.readlines()
     threads = []
     for line in Lines:
         t = Thread(target=main, args=(line,))
+        time.sleep(1)
         t.start()
         threads.append(t)
     for t in threads:
