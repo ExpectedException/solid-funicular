@@ -12,6 +12,7 @@ from nickname_generator import generate
 from selenium.webdriver.firefox.firefox_profile import FirefoxProfile
 from selenium.webdriver.firefox.firefox_binary import FirefoxBinary
 from threading import Thread
+from selenium.common.exceptions import TimeoutException
 
 
 def passgen(x):
@@ -41,9 +42,55 @@ def retoggleAllTheAddons(driver):
     """)
 
 
-def degenerate():
+def DriverDie(driver):
+    try:
+        driver.close()
+    except:
+        pass
+
+
+def checkCaptchaControl(driver):
+    try:
+        # numReqWhileCaptcha
+        wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '.styles-mobile__auto--vgHAw > div:nth-child(4)')))
+        return 1
+    except TimeoutException:
+        return 0
+
+
+def numberReq(driver):
+    wait = WebDriverWait(driver, 1)
+    GoNext = 0
+    while GoNext == 0:
+        try:
+            #numReq
+            wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, 'small.c0128:nth-child(1)')))
+            DriverDie(driver)
+        except TimeoutException:
+            pass
+        try:
+            #ok captcha
+            wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '.c011382')))
+            GoNext = checkCaptchaControl(driver)
+        except TimeoutException:
+            pass
+        try:
+            #numReqWhileCaptcha
+            wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '.styles-mobile__auto--vgHAw > div:nth-child(4)')))
+        except TimeoutException:
+            pass
+
+
+def degenerate_ru():
     accname =(generate() + generate() + str(randint(100, 9000)))
     Email =(accname + "@mail.ru")
+    Passwd= passgen(randint(1, 23243400))
+    return accname, Email, Passwd
+
+
+def degenerate_ua():
+    accname =(generate() + generate() + str(randint(100, 9000)))
+    Email =(accname + "@mail.ua")
     Passwd= passgen(randint(1, 23243400))
     return accname, Email, Passwd
 
@@ -58,8 +105,8 @@ def main(accname, Email, Passwd):
     options = Options()
     options.headless = True
     binary = FirefoxBinary("C:\\Program Files\\Mozilla Firefox\\firefox.exe")
-    profile = FirefoxProfile(
-        "C:\\Users\\PussyDestroyer\\AppData\\Roaming\\Mozilla\\Firefox\\Profiles\\7dvs7u3f.default")
+    #profile = FirefoxProfile("C:\\Users\\PussyDestroyer\\AppData\\Roaming\\Mozilla\\Firefox\\Profiles\\7dvs7u3f.default")
+    profile = FirefoxProfile("C:\\Users\\qweqweqwe\\AppData\\Roaming\\Mozilla\\Firefox\\Profiles\\bmiwtt76.default")
     driver = webdriver.Firefox(firefox_profile=profile, firefox_binary=binary)
     wait = WebDriverWait(driver, 1800)
     # retoggleAllTheAddons(driver)
@@ -75,26 +122,36 @@ def main(accname, Email, Passwd):
     wait.until(ec.element_to_be_clickable((By.XPATH, '//div/div/div/div/div[2]/span'))).click()
     wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, 'label.c0193:nth-child(1) > div:nth-child(1)'))).click()
     wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '#aaa__input'))).send_keys(accname)
-    wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '#password'))).send_keys(Passwd)
-    wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '#repeatPassword'))).send_keys(Passwd)
+    wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '#password'))).send_keys('Lol123456qwe')
+    wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '#repeatPassword'))).send_keys('Lol123456qwe')
     #wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '#phone-number__phone-input'))).send_keys('9789601886') #1
     #wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '#phone-number__phone-input'))).send_keys('9787393986') #2
     time.sleep(0.5)
     wait.until(ec.element_to_be_clickable((By.XPATH, '/html/body/div[1]/div[3]/div[3]/div/div/div/form/button'))).click()
+    numberReq(driver)
     wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '.c2182'))).click()
+    driver.get('https://id.mail.ru/security')
+    wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '.innerText-0-2-85'))).click()
+    wait.until(ec.element_to_be_clickable((By.XPATH, '/html/body/div[2]/div[2]/div/div/div[2]/form/div[5]/div[2]/div/div/input'))).send_keys('Lol123456qwe')
+    wait.until(ec.element_to_be_clickable((By.XPATH, '/html/body/div[2]/div[2]/div/div/div[2]/form/div[8]/div[2]/div[1]/div/div/div/input'))).send_keys(Passwd)
+    wait.until(ec.element_to_be_clickable(
+        (By.XPATH, '/html/body/div[2]/div[2]/div/div/div[2]/form/div[12]/div[2]/div/div/input'))).send_keys(
+        Passwd)
+    wait.until(ec.element_to_be_clickable(
+        (By.XPATH, '/html/body/div[2]/div[2]/div/div/div[2]/form/button[1]/span'))).click()
+    wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '.innerText-0-2-85')))
     sav(Email, Passwd)
-    #driver.get('https://id.mail.ru/contacts')
     #wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, 'button.base-0-2-77:nth-child(1) > div:nth-child(1) > svg:nth-child(1)'))).click()
     #wait.until(ec.element_to_be_clickable((By.XPATH, '/html/body/div[2]/div[2]/div/div/div[2]/form/div[4]/button[1]/span'))).click()
     #wait.until(ec.element_to_be_clickable((By.XPATH, '/html/body/div[2]/div[2]/div/div/div[2]/div/button/span'))).click()
-    driver.close()
+    DriverDie(driver)
 
 
 if __name__ == '__main__':
     threads = []
-    for n in range(7):
+    for n in range(10):
         time.sleep(0.1)
-        t = Thread(target=main, args=(degenerate()))
+        t = Thread(target=main, args=degenerate_ua())
         time.sleep(0.1)
         t.start()
         threads.append(t)

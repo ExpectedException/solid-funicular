@@ -13,24 +13,26 @@ import json
 from nickname_generator import generate
 from selenium.webdriver.firefox.firefox_profile import FirefoxProfile
 from selenium.webdriver.firefox.firefox_binary import FirefoxBinary
+from threading import Thread
 
 
 def Convert(string):
     li = list(string.split(":"))
     return li
 
-data = ''
 
-arr = (Convert(data))
-
-EmailNew = arr[0]
-EmailNewPass = arr[1]
-Steam = arr[2]
-SteamPass = arr[3]
-EmailOld = arr[4]
-EmailOldPass = arr[5]
 steamCodeString = '/html/body/div[5]/div/div[1]/div[1]/div/div[2]/div[2]/div/div/div/div/div/div/div[2]/div[1]/div[3]/div[2]/div/div/div/div/div/div/div/div/div/div/center[1]/div/div/table/tbody/tr/td/table/tbody/tr/td/table/tbody/tr[1]/td/table/tbody/tr[2]/td/table[3]/tbody/tr/td/table/tbody/tr/td/table/tbody/tr/td'
 steamCodeStringOld = '/html/body/div[2]/div/div[5]/div/div/div/div/div/div/div/div/div/div/div/div/div/div[6]/div[2]/div[2]/div[10]/div/div/div/div[4]/div/div[2]/div/div/div/div/center[1]/table/tbody/tr/td/table/tbody/tr/td/table/tbody/tr[1]/td/table/tbody/tr[2]/td/table[3]/tbody/tr/td/table/tbody/tr/td/table/tbody/tr/td'
+
+
+
+def readData(line):
+    
+
+    arr = (Convert(data))
+
+    return arr
+
 
 def passgen(x):
     characters = string.ascii_letters + string.digits
@@ -117,7 +119,14 @@ def retoggleAllTheAddons(driver):
     """)
 
 
-def main():
+def main(newLine):
+    arr = Convert(newLine)
+    EmailNew = arr[0]
+    EmailNewPass = arr[1]
+    Steam = arr[2]
+    SteamPass = arr[3]
+    EmailOld = arr[4]
+    EmailOldPass = arr[5]
     print(datetime.datetime.now())
     print(EmailOld)
     print(EmailOldPass)
@@ -360,4 +369,12 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    file = open(r'C:\Users\PussyDestroyer\PycharmProjects\chezahernya\c!replace.txt', 'r')
+    Lines = file.readlines()
+    threads = []
+    for line in Lines:
+        t = Thread(target=main, args=(line,))
+        t.start()
+        threads.append(t)
+    for t in threads:
+        t.join()
