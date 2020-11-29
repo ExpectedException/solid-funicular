@@ -13,6 +13,8 @@ from selenium.webdriver.firefox.firefox_profile import FirefoxProfile
 from selenium.webdriver.firefox.firefox_binary import FirefoxBinary
 from threading import Thread
 from selenium.common.exceptions import TimeoutException
+from datetime import datetime
+
 
 
 def passgen(x):
@@ -50,22 +52,36 @@ def DriverDie(driver):
 
 
 def checkCaptchaControl(driver):
-    try:
-        # numReqWhileCaptcha
-        wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '.styles-mobile__auto--vgHAw > div:nth-child(4)')))
-        return 1
-    except TimeoutException:
-        return 0
+    wait = WebDriverWait(driver, 0.2)
+    GoNext = 0
+    while GoNext == 0:
+        try:
+            # numReqWhileCaptcha
+            wait.until(ec.element_to_be_clickable((By.XPATH, '/html/body/div[1]/div[3]/div[3]/div/div/div/form/div[3]/p')))
+            DriverDie(driver)
+        except TimeoutException:
+            pass
+        try:
+            wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '.c2182')))
+            return 1
+        except TimeoutException:
+            pass
 
 
 def numberReq(driver):
-    wait = WebDriverWait(driver, 1)
+    wait = WebDriverWait(driver, 0.2)
     GoNext = 0
     while GoNext == 0:
         try:
             #numReq
             wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, 'small.c0128:nth-child(1)')))
             DriverDie(driver)
+        except TimeoutException:
+            pass
+        try:
+            #nastroit
+            wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '.c2182')))
+            GoNext = checkCaptchaControl(driver)
         except TimeoutException:
             pass
         try:
@@ -76,7 +92,8 @@ def numberReq(driver):
             pass
         try:
             #numReqWhileCaptcha
-            wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '.styles-mobile__auto--vgHAw > div:nth-child(4)')))
+            wait.until(ec.element_to_be_clickable((By.XPATH, '/html/body/div[1]/div[3]/div[3]/div/div/div/form/div[3]/p')))
+            DriverDie(driver)
         except TimeoutException:
             pass
 
@@ -139,7 +156,7 @@ def main(accname, Email, Passwd):
         Passwd)
     wait.until(ec.element_to_be_clickable(
         (By.XPATH, '/html/body/div[2]/div[2]/div/div/div[2]/form/button[1]/span'))).click()
-    wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '.innerText-0-2-85')))
+    wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '.cross-0-2-97 > svg:nth-child(1) > path:nth-child(1)')))
     sav(Email, Passwd)
     #wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, 'button.base-0-2-77:nth-child(1) > div:nth-child(1) > svg:nth-child(1)'))).click()
     #wait.until(ec.element_to_be_clickable((By.XPATH, '/html/body/div[2]/div[2]/div/div/div[2]/form/div[4]/button[1]/span'))).click()
@@ -148,6 +165,10 @@ def main(accname, Email, Passwd):
 
 
 if __name__ == '__main__':
+    f = open("data_done100percent.txt", "a")
+    data = str(datetime.now()) + '\n'
+    f.write(data)
+    f.close()
     threads = []
     for n in range(10):
         time.sleep(0.1)

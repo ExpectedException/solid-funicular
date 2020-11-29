@@ -4,7 +4,9 @@
     <list default="true" id="5f277cce-55e0-4c39-ab22-09c1b9949ef8" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../MailG.py" beforeDir="false" afterPath="$PROJECT_DIR$/../MailG.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../checker.py" beforeDir="false" afterPath="$PROJECT_DIR$/../checker.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../checker_new.py" beforeDir="false" afterPath="$PROJECT_DIR$/../checker_new.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../data.txt" beforeDir="false" afterPath="$PROJECT_DIR$/../data.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../data_done100percent.txt" beforeDir="false" afterPath="$PROJECT_DIR$/../data_done100percent.txt" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -23,6 +25,15 @@
           </provider>
         </entry>
       </file>
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/../../../SteamFish/AutoSteal/AutoSteal/advanced/parse_games.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="-1232">
+              <caret line="4" lean-forward="true" selection-start-line="4" selection-end-line="4" />
+            </state>
+          </provider>
+        </entry>
+      </file>
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/imap_testing.py">
           <provider selected="true" editor-type-id="text-editor">
@@ -35,11 +46,11 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/../checker.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="984">
-              <caret line="375" column="38" selection-start-line="375" selection-start-column="38" selection-end-line="375" selection-end-column="38" />
+            <state relative-caret-position="8228">
+              <caret line="389" column="38" selection-start-line="389" selection-start-column="38" selection-end-line="389" selection-end-column="38" />
               <folding>
                 <element signature="e#0#43#0" expanded="true" />
               </folding>
@@ -70,6 +81,8 @@
       <find>/</find>
       <find>//</find>
       <find>\\</find>
+      <find>driver.get</find>
+      <find>enco</find>
     </findStrings>
     <replaceStrings>
       <replace>/</replace>
@@ -103,10 +116,10 @@
     </option>
   </component>
   <component name="ProjectFrameBounds" extendedState="7">
-    <option name="x" value="889" />
-    <option name="y" value="217" />
-    <option name="width" value="1578" />
-    <option name="height" value="1022" />
+    <option name="x" value="741" />
+    <option name="y" value="104" />
+    <option name="width" value="1607" />
+    <option name="height" value="1252" />
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectView">
@@ -114,7 +127,6 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -130,6 +142,7 @@
           <select />
         </subPane>
       </pane>
+      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -259,7 +272,9 @@
       <option name="presentableId" value="Default" />
       <updated>1605450745449</updated>
       <workItem from="1605450746694" duration="20853000" />
-      <workItem from="1606037462341" duration="2998000" />
+      <workItem from="1606037462341" duration="3606000" />
+      <workItem from="1606577270918" duration="7145000" />
+      <workItem from="1606672648435" duration="2648000" />
     </task>
     <task id="LOCAL-00001" summary="Created/Updated">
       <created>1605451051613</created>
@@ -293,12 +308,13 @@
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="23851000" />
+    <option name="totallyTimeSpent" value="34252000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="2576" height="1456" extended-state="7" />
+    <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.068580545" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.053429026" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
@@ -388,19 +404,22 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/req.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="88">
-          <caret line="4" column="20" selection-start-line="4" selection-start-column="20" selection-end-line="4" selection-end-column="20" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/imap_testing.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="374">
           <caret line="18" column="29" selection-start-line="18" selection-start-column="29" selection-end-line="18" selection-end-column="29" />
           <folding>
             <element signature="e#0#31#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../checker.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="8228">
+          <caret line="389" column="38" selection-start-line="389" selection-start-column="38" selection-end-line="389" selection-end-column="38" />
+          <folding>
+            <element signature="e#0#43#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -412,13 +431,24 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/../checker.py">
+    <entry file="file://$PROJECT_DIR$/../../../SteamFish/AutoSteal/AutoSteal/utils/account.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="984">
-          <caret line="375" column="38" selection-start-line="375" selection-start-column="38" selection-end-line="375" selection-end-column="38" />
-          <folding>
-            <element signature="e#0#43#0" expanded="true" />
-          </folding>
+        <state relative-caret-position="792">
+          <caret line="36" column="45" lean-forward="true" selection-start-line="36" selection-start-column="45" selection-end-line="36" selection-end-column="45" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/req.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="88">
+          <caret line="4" column="20" selection-start-line="4" selection-start-column="20" selection-end-line="4" selection-end-column="20" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/../../../SteamFish/AutoSteal/AutoSteal/advanced/parse_games.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-1232">
+          <caret line="4" lean-forward="true" selection-start-line="4" selection-end-line="4" />
         </state>
       </provider>
     </entry>

@@ -10,11 +10,17 @@ from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as ec
 import string
 from random import *
-import json
-from nickname_generator import generate
+from datetime import datetime
 from selenium.webdriver.firefox.firefox_profile import FirefoxProfile
 from selenium.webdriver.firefox.firefox_binary import FirefoxBinary
 from threading import Thread
+import logging
+from selenium.common.exceptions import TimeoutException
+from selenium.common.exceptions import ElementClickInterceptedException
+import re
+from selenium.webdriver import ActionChains
+import urllib.parse
+import json
 
 
 def Convert(string):
@@ -44,13 +50,12 @@ def loginIntoSteam(driver, wait, EmailNew, EmailNewPass, EmailOld, EmailOldPass)
             invalid = 1
         else:
             invalid = 0
-
     except NoSuchElementException:
         pass
 
     if invalid == 1:
         f = open("invalidEmailS.txt", "a")
-        data = str(EmailNew + ' ' + EmailNewPass + '         ' + EmailOld + ' ' + EmailOldPass)
+        data = str(EmailNew + ' ' + EmailNewPass + '         ' + EmailOld + ' ' + EmailOldPass.strip() + '\n')
         f.write(data)
         f.close()
         driver.close()
@@ -64,6 +69,243 @@ def passgen(x):
     characters = string.ascii_letters + string.digits
     password = "".join(choice(characters) for x in range(randint(10, 12)))
     return password
+
+
+def LetsDeleteEverything(driver, url):
+    CommentsShouldDie(driver, url)
+    LeaveGroups(driver, url)
+    PengingInvites(driver, url)
+    Following(driver, url)
+    Blocked(driver, url)
+    PengingFriends(driver, url)
+    FuckFriends(driver, url)
+    ChatShit(driver)
+
+
+def jSonParse(driver, wait):
+    wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '#global_actions > a')))
+    jsnstr = driver.find_element_by_id('webui_config').get_attribute('data-userinfo')
+    y = json.loads(jsnstr)
+    url = str('https://steamcommunity.com/profiles/' + y['steamid'] + '/')
+    return url
+
+
+def CommentsShouldDie(driver, url):
+    wait = WebDriverWait(driver, 5)
+    driver.get(url)
+    GoNext = 0
+    wait.until(ec.element_to_be_clickable((By.XPATH, '/html/body/div[1]/div[7]/div[3]/div[1]/div[2]/div/div[2]/div[4]/div/div[1]/div[2]/span[1]')))
+    while GoNext == 0:
+        try:
+            wait.until(ec.element_to_be_clickable((By.CLASS_NAME, 'commentthread_comment_content')))
+            id = driver.execute_script("return document.querySelector('.commentthread_comment_text').id")
+            idNumbers = re.findall("\d+", id)[0]
+            urlNumbers = re.findall("\d+", url)[0]
+            DELETE = str('javascript:CCommentThread.DeleteComment( "Profile_' + urlNumbers + '", "' + idNumbers + '"  );')
+            driver.execute_script(DELETE)
+            time.sleep(1)
+        except TimeoutException:
+            GoNext = 1
+
+
+def ChatShit(driver):
+    #will fix
+    GoNext = 0
+    wait = WebDriverWait(driver, 10)
+    driver.get('https://steamcommunity.com/chat/')
+    while GoNext == 0:
+        try:
+            wait.until(ec.element_to_be_clickable((By.CLASS_NAME, 'ContextMenuButton')))
+            time.sleep(0.5)
+            el = driver.find_element_by_class_name('chatRoomListContainer')
+            el.find_element_by_class_name('ContextMenuButton').click()
+            wait.until(ec.element_to_be_clickable((By.XPATH, "//body/div[5]/div/div/div[2]"))).click()
+            wait.until(ec.element_to_be_clickable((By.XPATH, "//button[@type='submit']"))).click()
+        except :
+            GoNext = 1
+    DeclineChat(driver)
+
+
+def DeclineChat(driver):
+    action = ActionChains(driver)
+    cyka = "//div[@id='friendslist-container']/div/div[3]/div/div/div[2]/div[3]/div/div/div/div[2]/div/div/div[2]/div/div"
+    cyka2 ="//div[@id='friendslist-container']/div/div[3]/div/div/div[2]/div[3]/div/div/div/div[2]/div/div/div[2]/div[2]/div"
+    cyka3 = "//div[@id='friendslist-container']/div/div[3]/div/div/div[2]/div[3]/div/div/div/div[2]/div/div/div[2]/div[3]/div"
+    cyka4 = "//div[@id='friendslist-container']/div/div[3]/div/div/div[2]/div[3]/div/div/div/div[2]/div/div/div[2]/div[4]/div"
+    cyka5 = "//div[@id='friendslist-container']/div/div[3]/div/div/div[2]/div[3]/div/div/div/div[2]/div/div/div[2]/div[5]/div"
+    cyka6 = "//div[@id='friendslist-container']/div/div[3]/div/div/div[2]/div[3]/div/div/div/div[2]/div/div/div[2]/div[6]/div"
+    cyka7 = "//div[@id='friendslist-container']/div/div[3]/div/div/div[2]/div[3]/div/div/div/div[2]/div/div/div[2]/div[7]/div"
+    cyka8 = "//div[@id='friendslist-container']/div/div[3]/div/div/div[2]/div[3]/div/div/div/div[2]/div/div/div[2]/div[8]/div"
+    cyka9 = "//div[@id='friendslist-container']/div/div[3]/div/div/div[2]/div[3]/div/div/div/div[2]/div/div/div[2]/div[9]/div"
+    cyka10 = "//div[@id='friendslist-container']/div/div[3]/div/div/div[2]/div[3]/div/div/div/div[2]/div/div/div[2]/div[10]/div"
+    GoNext = 0
+    wait = WebDriverWait(driver, 10)
+    while GoNext == 0:
+        try:
+            wait.until(ec.element_to_be_clickable((By.CLASS_NAME, 'ContextMenuButton')))
+            el = wait.until(ec.element_to_be_clickable((By.XPATH, cyka)))
+            action.double_click(el).perform()
+            el = wait.until(ec.element_to_be_clickable((By.XPATH, cyka2)))
+            action.double_click(el).perform()
+            el = wait.until(ec.element_to_be_clickable((By.XPATH, cyka3)))
+            action.double_click(el).perform()
+            el = wait.until(ec.element_to_be_clickable((By.XPATH, cyka4)))
+            action.double_click(el).perform()
+            el = wait.until(ec.element_to_be_clickable((By.XPATH, cyka5)))
+            action.double_click(el).perform()
+            el = wait.until(ec.element_to_be_clickable((By.XPATH, cyka6)))
+            action.double_click(el).perform()
+            el = wait.until(ec.element_to_be_clickable((By.XPATH, cyka7)))
+            action.double_click(el).perform()
+            el = wait.until(ec.element_to_be_clickable((By.XPATH, cyka8)))
+            action.double_click(el).perform()
+            el = wait.until(ec.element_to_be_clickable((By.XPATH, cyka9)))
+            action.double_click(el).perform()
+            el = wait.until(ec.element_to_be_clickable((By.XPATH, cyka10)))
+            action.double_click(el).perform()
+        except TimeoutException:
+            GoNext = 1
+
+
+def FuckFriends(driver, url):
+    wait = WebDriverWait(driver, 5)
+    groups_url = str(url + 'friends')
+    driver.get(groups_url)
+    try:
+        wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '#search_results_empty')))
+        GoNext = 1
+    except TimeoutException:
+        GoNext = 0
+    if GoNext == 0:
+        try:
+            wait.until(ec.element_to_be_clickable((By.XPATH, '/html/body/div[1]/div[7]/div[3]/div/div[2]/div[2]/div/div[1]/button[1]/span'))).click()
+            wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, 'span.selection_type:nth-child(2)'))).click()
+            wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '.manage_action > span:nth-child(1)'))).click()
+        except TimeoutException:
+            pass
+
+
+def LeaveGroups(driver, url):
+    wait = WebDriverWait(driver, 5)
+    groups_url = str(url + 'groups/')
+    driver.get(groups_url)
+    try:
+        wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '#search_results_empty')))
+        GoNext = 1
+    except TimeoutException:
+        GoNext = 0
+    while GoNext == 0:
+        try:
+            elems = driver.find_elements_by_class_name('actions')
+            for i in elems:
+                try:
+                    time.sleep(0.1)
+                    i.click()
+                except:
+                    pass
+            wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '.btn_green_steamui'))).click()
+        except TimeoutException:
+            GoNext = 1
+
+
+def PengingInvites(driver, url):
+    wait = WebDriverWait(driver, 5)
+    groups_url = str(url + 'groups/pending')
+    driver.get(groups_url)
+    ignore = []
+    try:
+        wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '#search_results_empty')))
+        GoNext = 1
+    except TimeoutException:
+        GoNext = 0
+    while GoNext == 0:
+        try:
+            lnks = driver.find_elements_by_tag_name('a')
+            for lnk in lnks:
+                tmp_href = lnk.get_attribute('href')
+                tmp_href = urllib.parse.unquote(tmp_href)
+                if tmp_href.find("group_ignore") != -1:
+                    ignore.append(tmp_href)
+            for i in ignore:
+                try:
+                    time.sleep(0.1)
+                    driver.execute_script(i)
+                except:
+                    pass
+            wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '#search_results_empty')))
+        except TimeoutException:
+            GoNext = 1
+
+
+def Following(driver, url):
+    wait = WebDriverWait(driver, 5)
+    groups_url = str(url + 'following/')
+    driver.get(groups_url)
+    try:
+        wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '#search_results_empty')))
+        GoNext = 1
+    except TimeoutException:
+        GoNext = 0
+    if GoNext == 0:
+        try:
+            wait.until(ec.element_to_be_clickable((By.XPATH, '/html/body/div[1]/div[7]/div[3]/div/div[2]/div[2]/div/div[1]/button/span'))).click()
+            wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, 'span.selection_type:nth-child(2)'))).click()
+            wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '.manage_action > span:nth-child(1)'))).click()
+        except TimeoutException:
+            pass
+
+
+def Blocked(driver, url):
+    wait = WebDriverWait(driver, 5)
+    groups_url = str(url + 'friends/blocked')
+    driver.get(groups_url)
+    try:
+        wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '#search_results_empty')))
+        GoNext = 1
+    except TimeoutException:
+        GoNext = 0
+    if GoNext == 0:
+        try:
+            wait.until(ec.element_to_be_clickable((By.XPATH, '/html/body/div[1]/div[7]/div[3]/div/div[2]/div[2]/div/div[1]/button/span'))).click()
+            wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, 'span.selection_type:nth-child(2)'))).click()
+            wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '.manage_action > span:nth-child(1)'))).click()
+        except TimeoutException:
+            pass
+
+
+def PengingFriends(driver, url):
+    wait = WebDriverWait(driver, 5)
+    groups_url = str(url + 'friends/pending')
+    driver.get(groups_url)
+    try:
+        wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '#search_results_empty')))
+        GoNext = 0.5
+    except TimeoutException:
+        GoNext = 0
+    try:
+        wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '#search_results_sentinvites_empty')))
+        Gpls = 1
+        GoNext = 0.5
+    except TimeoutException:
+        Gpls = 0
+        GoNext = 0
+    if GoNext != 1:
+        try:
+            wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '#manage_friends_control > span:nth-child(1)'))).click()
+        except TimeoutException:
+            pass
+        while Gpls == 0:
+            try:
+                elems = driver.find_elements_by_class_name('actions')
+                for i in elems:
+                    try:
+                        i.click()
+                        time.sleep(0.1)
+                    except:
+                        pass
+                wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '.btn_green_steamui > span:nth-child(1)'))).click()
+            except TimeoutException:
+                Gpls = 1
 
 
 def findSteamCode(driver, wait):
@@ -91,6 +333,7 @@ def findSteamCode(driver, wait):
 def findSteamCodeGuard(driver, wait):
     driver.get('https://e.mail.ru/inbox/')
     shit(driver)
+    steamCode = '/html/body/div[5]/div/div[1]/div[1]/div/div[2]/span/div[2]/div/div/div/div/div/div/div[2]/div[1]/div[3]/div[2]/div/div/div/div/div/div/div/div/div/div/center[1]/div/div/table/tbody/tr/td/table/tbody/tr/td/table/tbody/tr[1]/td/table/tbody/tr[2]/td/table[3]/tbody/tr/td/table/tbody/tr/td/table/tbody/tr/td'
     time.sleep(5)
     pochtaIsNew = 0
     steam(wait)
@@ -107,10 +350,14 @@ def findSteamCodeGuard(driver, wait):
     driver.execute_script("arguments[0].click();",
                           driver.find_element_by_xpath('//*[@title="Steam Support <noreply@steampowered.com>"]'))
     if pochtaIsNew == 1:
-        cont = wait.until(ec.element_to_be_clickable((By.XPATH, '/html/body/div[5]/div/div[1]/div[1]/div/div[2]/span/div[2]/div/div/div/div/div/div/div[2]/div[1]/div[3]/div[2]/div/div/div/div/div/div/div/div/div/div/table/tbody/tr[2]/td/table/tbody/tr[3]/td/div/span'))).text
+        cont = wait.until(ec.element_to_be_clickable((By.XPATH, steamCode))).text
     else:
-        cont = wait.until(ec.element_to_be_clickable((By.XPATH, steamCodeStringOld))).text
+        cont = wait.until(ec.element_to_be_clickable((By.XPATH, steamCode))).text
     return cont
+
+
+def changeEmail(driver, wait):
+    pass
 
 
 class AnyEc:
@@ -138,57 +385,58 @@ def steam(wait):
 
 
 def shit(driver):
-    time.sleep(0.3)
+    wTime = 0.3
+    time.sleep(wTime)
     try:
-        time.sleep(0.4)
+        time.sleep(wTime)
         driver.find_element_by_css_selector('.c2182').click()
     except NoSuchElementException:
         pass
 
     try:
-        time.sleep(0.4)
+        time.sleep(wTime)
         driver.find_element_by_css_selector('.c01180').click()
 
     except NoSuchElementException:
         pass
 
     try:
-        time.sleep(0.2)
+        time.sleep(wTime)
         driver.find_element_by_css_selector('.c01159').click()
 
     except NoSuchElementException:
         pass
 
     try:
-        time.sleep(0.4)
+        time.sleep(wTime)
         driver.find_element_by_css_selector('.c01156').click()
 
     except NoSuchElementException:
         pass
 
     try:
-        time.sleep(0.4)
+        time.sleep(wTime)
         driver.find_element_by_css_selector('.c01177').click()
 
     except NoSuchElementException:
         pass
 
     try:
-        time.sleep(0.4)
+        time.sleep(wTime)
         driver.find_element_by_css_selector('.cross-0-2-70 > svg:nth-child(1)').click()
 
     except NoSuchElementException:
         pass
 
     try:
-        time.sleep(0.4)
+        time.sleep(wTime)
         driver.find_element_by_css_selector('.cross-0-2-23 > svg:nth-child(1) > path:nth-child(1)').click()
 
     except NoSuchElementException:
         pass
 
     try:
-        time.sleep(0.2)
+        time.sleep(wTime)
         driver.find_element_by_css_selector('.c2117 > svg:nth-child(1)').click()
 
     except NoSuchElementException:
@@ -209,7 +457,7 @@ def retoggleAllTheAddons(driver):
     """)
 
 
-def main(newLine):
+def main(newLine, profile):
     arr = Convert(newLine)
     EmailNew = arr[0]
     EmailNewPass = arr[1]
@@ -217,14 +465,12 @@ def main(newLine):
     SteamPass = arr[3]
     EmailOld = arr[4]
     EmailOldPass = arr[5]
-    print(datetime.datetime.now())
+    print(datetime.now())
     print(EmailOld)
     print(EmailOldPass)
     options = Options()
     options.headless = True
     binary = FirefoxBinary("C:\\Program Files\\Mozilla Firefox\\firefox.exe")
-    profile = FirefoxProfile(
-        "C:\\Users\\PussyDestroyer\\AppData\\Roaming\\Mozilla\\Firefox\\Profiles\\7dvs7u3f.default")
     driver = webdriver.Firefox(firefox_profile=profile, firefox_binary=binary)
     wait = WebDriverWait(driver, 1800)
     # retoggleAllTheAddons(driver)
@@ -242,8 +488,9 @@ def main(newLine):
     wait.until(ec.element_to_be_clickable((By.XPATH, '//*[@id="input_username"]'))).send_keys(Steam)
     wait.until(ec.element_to_be_clickable((By.XPATH, '//*[@id="input_password"]'))).send_keys(SteamPass)
     loginIntoSteam(driver, wait, EmailNew, EmailNewPass, EmailOld, EmailOldPass)
-    url = driver.current_url
-    print(driver.current_url)
+    url = jSonParse(driver, wait)
+    #testingPlace
+    print(url)
     driver.get('https://store.steampowered.com/account/')
     wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR,
                                            'div.account_setting_block:nth-child(6) > div:nth-child(1) > div:nth-child(2) > div:nth-child(2) > a:nth-child(1)'))).click()
@@ -274,6 +521,8 @@ def main(newLine):
         ec.element_to_be_clickable((By.CSS_SELECTOR, 'button.base-0-2-82:nth-child(20) > span:nth-child(1)'))).click()
     wait.until(
         ec.element_to_be_clickable((By.XPATH, '/html/body/div[2]/div[2]/div/div/div[2]/div/button/span'))).click()
+    logging.info(
+        str(datetime.now()) + ' changed ' + EmailOld + ':' + EmailOldPass + ' TO ' + EmailOld + ':' + EmailPassNew)
     print(EmailOld + ':' + EmailPassNew)
     driver.get('https://e.mail.ru/inbox/')
     shit(driver)
@@ -330,6 +579,7 @@ def main(newLine):
     f = open("checker.txt", "a")
     data = str(
         EmailNew + ' ' + EmailNewPass + ' ' + Steam + ' ' + SteamPassNew + '  ' + url + '     ' + EmailOld + ' ' + EmailPassNew + '\n')
+    logging.info(str(datetime.now()) + ' ' + data)
     f.write(data)
     f.close()
     print(EmailNew + ':' + EmailNewPass + ':' + Steam + ':' + SteamPassNew + ':' + EmailOld + ':' + EmailPassNew)
@@ -338,11 +588,20 @@ def main(newLine):
         (By.XPATH, '/html/body/div/div[7]/div[2]/div[2]/div/div[2]/div/div[4]/form/div[3]/input'))).click()
     wait.until(ec.element_to_be_clickable((By.ID, 'password_reset'))).send_keys(SteamPassNew)
     wait.until(ec.element_to_be_clickable((By.ID, 'password_reset_confirm'))).send_keys(SteamPassNew)
-    time.sleep(3)
+    time.sleep(5)
     wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '.account_recovery_submit > input:nth-child(1)'))).click()
+    logging.info(
+        str(datetime.now()) + ' changed ' + Steam + ':' + SteamPass + ' TO ' + Steam + ':' + SteamPassNew)
     driver.switch_to.window(driver.window_handles[0])
     steam(wait)
     shit(driver)
+    driver.execute_script("arguments[0].click();",
+                          driver.find_element_by_xpath('//*[@title="Steam Support <noreply@steampowered.com>"]'))
+    linkTlock = wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '.p-80_mr_css_attr > table:nth-child(1) > tbody:nth-child(1) > tr:nth-child(2) > td:nth-child(1) > table:nth-child(5) > tbody:nth-child(1) > tr:nth-child(1) > td:nth-child(1) > a:nth-child(4)'))).get_attribute('href')
+    logging.info(
+        str(datetime.now()) + ' got lock link ' + Steam + ":" + linkTlock)
+    print(Steam + ":" + linkTlock)
+    driver.get('https://e.mail.ru/inbox/')
     if pochtaIsNew == 1:
         wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '.button2__explanation'))).click()
         shit(driver)
@@ -427,6 +686,8 @@ def main(newLine):
     wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '#email_change_code'))).send_keys(cont)
     wait.until(ec.element_to_be_clickable(
         (By.CSS_SELECTOR, 'div.account_recovery_submit:nth-child(2) > input:nth-child(1)'))).click()
+    logging.info(
+        str(datetime.now()) + ' email changed ' + EmailOld + ' TO ' + EmailNew)
     wait.until(ec.element_to_be_clickable(
         (By.CSS_SELECTOR,
          'div.account_setting_block:nth-child(6) > div:nth-child(1) > div:nth-child(2) > div:nth-child(1) > a:nth-child(1)'))).click()
@@ -450,22 +711,8 @@ def main(newLine):
     wait.until(ec.element_to_be_clickable(
         (By.XPATH, '//*[@id="success_continue_btn"]'))).click()
     wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '.user_avatar'))).click()
-    wait.until(ec.element_to_be_clickable((By.XPATH, '/html/body/div[1]/div[7]/div[3]/div[1]/div[2]/div/div[1]/div[3]/div/div[1]/a/span[1]'))).click()
-    time.sleep(0.5)
-    wait.until(ec.element_to_be_clickable((By.XPATH, '/html/body/div[1]/div[7]/div[3]/div/div[2]/div[1]/a[1]'))).click()
-    time.sleep(0.5)
-    #manageFriendsList
-    wait.until(ec.element_to_be_clickable((By.XPATH, '/html/body/div[1]/div[7]/div[3]/div/div[2]/div[2]/div/div[1]/button[1]/span'))).click()
-    time.sleep(0.5)
-    wait.until(ec.element_to_be_clickable((By.XPATH, '/html/body/div[1]/div[7]/div[3]/div/div[2]/div[2]/div/div[2]/div[1]/span/span[2]'))).click()
-    #removeFriend
-    wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, 'span.manage_action:nth-child(1) > span:nth-child(1)'))).click()
-    time.sleep(0.5)
-    wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '.user_avatar'))).click()
-    driver.switch_to.window(driver.window_handles[0])
-    shit(driver)
-    wait.until(ec.element_to_be_clickable((By.XPATH, '/html/body/div[5]/div/div[1]/div[1]/div/div[2]/div[2]/div/div/div/div/div/div/div[2]/div[1]/div[3]/div[2]/div/div/div/div/div/div/div/div/div/div/table/tbody/tr[2]/td/table/tbody/tr[4]/td/p[4]/a'))).click()
-    driver.switch_to.window(driver.window_handles[1])
+    LetsDeleteEverything(driver, url)
+    driver.get(linkTlock)
     wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '.help_wizard_button > span:nth-child(1)'))).click()
     time.sleep(1)
     wait.until(ec.element_to_be_clickable((By.XPATH, '/html/body/div[1]/div[7]/div[2]/div[2]/div/div[2]/div/div/div[3]/a/span'))).click()
@@ -476,17 +723,30 @@ def main(newLine):
     f = open("checker_withURL.txt", "a")
     data = str(
         EmailNew + ' ' + EmailNewPass + ' ' + Steam + ' ' + SteamPassNew + '  ' + url + '    ' + unlockurl + ' ' + EmailOld + ' ' + EmailPassNew + '\n')
+    logging.info(
+        str(datetime.now()) + ' DONE!\n ' + data)
     f.write(data)
     f.close()
     #driver.close()
 
 
 if __name__ == '__main__':
-    frep = open(r'C:\Users\PussyDestroyer\PycharmProjects\chezahernya\c!replace.txt', 'r')
+    LOG_FILENAME = 'Loh.log'
+    logging.basicConfig(filename=LOG_FILENAME, level=logging.INFO)
+    ya = 1
+    if ya == 1:
+        frep = open(r'C:\Users\PussyDestroyer\PycharmProjects\chezahernya\c!replace.txt', 'r')
+        profile = FirefoxProfile("C:\\Users\\PussyDestroyer\\AppData\\Roaming\\Mozilla\\Firefox\\Profiles\\7dvs7u3f.default")
+    elif ya == 0:
+        frep = open('c!replace.txt', 'r')
+        profile = FirefoxProfile("C:\\Users\\qweqweqwe\\AppData\\Roaming\\Mozilla\\Firefox\\Profiles\\bmiwtt76.default")
+    else:
+        frep, profile = 0, 0
     Lines = frep.readlines()
     threads = []
+    logging.info(str(datetime.now()) + ' starting...')
     for line in Lines:
-        t = Thread(target=main, args=(line,))
+        t = Thread(target=main, args=(line, profile,))
         time.sleep(1)
         t.start()
         threads.append(t)
