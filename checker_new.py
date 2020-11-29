@@ -4,8 +4,7 @@ from selenium import webdriver
 from selenium.webdriver.firefox.options import Options
 from selenium.common.exceptions import NoSuchElementException
 from selenium.common.exceptions import ElementNotInteractableException
-import time
-import datetime
+import time, os, traceback
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as ec
 import string
@@ -21,6 +20,7 @@ import re
 from selenium.webdriver import ActionChains
 import urllib.parse
 import json
+from addons.list_search import ListSearch
 
 
 def Convert(string):
@@ -65,13 +65,217 @@ def loginIntoSteam(driver, wait, EmailNew, EmailNewPass, EmailOld, EmailOldPass)
         wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '.user_avatar'))).click()
 
 
+def checkPrime(driver, wait, pRank):
+    if pRank >= 21:
+        return 1
+    else:
+        medal = driver.find_element_by_css_selector('div.generic_kv_line:nth-child(2)').text
+        if medal == 'Получена медаль за службу: Да' or medal == 'Earned a Service Medal: Yes':
+            return 1
+        else:
+            prime = 0
+        try:
+             wait.until(ec.element_to_be_clickable((By.XPATH, '/html/body/div[1]/div[7]/div[2]/div/div[2]/div/div[3]/div[2]/div/a'))).click()
+             wait.until(ec.element_to_be_clickable((By.XPATH, '/html/body/div[1]/div[7]/div[2]/div/div[2]/div/div[5]')))
+             prime = 0
+        except:
+            if prime == 0:
+                return 0
+            else:
+                return 1
+
+
+def CreateHeader(driver, EmailNew, EmailNewPass, Steam, SteamPassNew, url, EmailOld, EmailPassNew, primeStatus, pRank):
+    driver.get("https://help.steampowered.com/en/")
+
+    try:
+        help_event_limiteduser = driver.find_element_by_css_selector(".help_event_limiteduser")
+        if "limited" in help_event_limiteduser.text:
+            limit = 1
+        else:
+            limit = 0
+    except:
+        limit = 0
+    try:
+        pRank = str(pRank)
+        game_ids = parseGames(driver, url)
+        if (len(game_ids) > 0):
+            key = ListSearch("730", "s", game_ids)
+            if key != None:
+                rank = checkRankInCs(driver, url)
+                hrs = game_ids[key]
+                hrs = hrs['h']
+                if limit == 0:
+                    header = str('[' + primeStatus + '] ' + rank + ' | Profile Rank ' + pRank + ' | ' + 'No Limit | ' + hrs + ' hrs | ')
+                elif limit == 1:
+                    header = str('[' + primeStatus + '] ' + rank + ' | Profile Rank ' + pRank + ' | ' + hrs + ' hrs | ')
+
+            key = ListSearch("570", "s", game_ids)
+            if key != None:
+                d2rank = checkRankInDota(driver, url)
+                hrs = game_ids[key]
+                hrs = hrs['h']
+                if limit == 0:
+                    header = str(
+                        '[' + primeStatus + '] ' + d2rank + ' | Profile Rank ' + pRank + ' | ' + 'No Limit | ' + hrs + ' hrs | ')
+                elif limit == 1:
+                    header = str('[' + primeStatus + '] ' + d2rank + ' | Profile Rank ' + pRank + ' | ' + hrs + ' hrs | ')
+
+        f = open('checkerWithHeader.txt', "a")
+        data = str(
+            EmailNew + ';' + EmailNewPass + ';' + Steam + ';' + SteamPassNew + ';;' + url + ';' + header + ';;;;' + EmailOld + ';' + EmailPassNew + '\n')
+        print(data)
+        f.write(data)
+        f.close()
+        logging.info(str(datetime.now()) + ' ' + data)
+    except:
+        traceback.print_exc()
+
+
+def checkRankInDota(driver, url):
+    ID64 = re.findall("\d+", url)[0]
+    url = str('https://steamcommunity.com/profiles/' + ID64 + '/gcpd/570/?category=Account&tab=GameAccountClient')
+    driver.get(url)
+    index = 1
+    SoloCalibrationGamesLeft = "notTBD"
+    Behavior = "ERROR"
+    try:
+        tr = driver.find_elements_by_tag_name('tr')
+        for i in tr:
+            index += 1
+            if "SoloCalibrationGamesLeft" in i.text:
+                tds = tr[1].find_elements_by_tag_name('td')
+                SoloCalibrationGamesLeft = tds[index].text
+                break
+    except:
+        traceback.print_exc()
+        return 'ERROR'
+    url = str('https://steamcommunity.com/profiles/' + ID64 + '/gcpd/570/?category=Account&tab=MatchPlayerReportIncoming')
+    driver.get(url)
+    try:
+        tr = driver.find_elements_by_tag_name('tr')
+        tds = tr[1].find_elements_by_tag_name('td')
+        Behavior = tds[-1].text
+        return Behavior
+    except:
+        traceback.print_exc()
+        return 'ERROR'
+
+
+def checkRankInCs(driver, url):
+    ID64 = re.findall("\d+", url)[0]
+    url = str('https://steamcommunity.com/profiles/' + ID64 + '/gcpd/730/?tab=matchmaking')
+    driver.get(url)
+    try:
+        tr = driver.find_elements_by_tag_name('tr')
+        for i in tr:
+            if "Competitive" in i.text:
+                i = i.find_elements_by_tag_name('td')
+                break
+        rank = int(i[4].text)
+        if rank == 1:
+            return 'Silver 1'
+        elif rank == 2:
+            return 'Silver 2'
+        elif rank == 3:
+            return 'Silver 3'
+        elif rank == 4:
+            return 'Silver 4'
+        elif rank == 5:
+            return 'Silver Elite'
+        elif rank == 6:
+            return 'Silver Elite Master'
+        elif rank == 7:
+            return 'Gold Nova 1'
+        elif rank == 8:
+            return 'Gold Nova 2'
+        elif rank == 9:
+            return 'Gold Nova 3'
+        elif rank == 10:
+            return 'Gold Nova Master'
+        elif rank == 11:
+            return 'Master Guardian 1'
+        elif rank == 12:
+            return 'Master Guardian 2'
+        elif rank == 13:
+            return 'Master Guardian Elite'
+        elif rank == 14:
+            return 'Distinguished Master Guardian'
+        elif rank == 15:
+            return 'Legendary Eagle'
+        elif rank == 16:
+            return 'Legendary Eagle Master'
+        elif rank == 17:
+            return 'Supreme Master First Class'
+        elif rank == 18:
+            return 'Global Elite'
+        else:
+            return 'ERROR'
+    except:
+        traceback.print_exc()
+        return 'ERROR'
+
+
+def parseGames(driver, url):
+    wait = WebDriverWait(driver, 5)
+    game_ids =[]
+    ID64 = re.findall("\d+", url)[0]
+    url = str('https://steamcommunity.com/profiles/' + ID64 + '/games/?tab=all')
+    driver.get(url)
+    try:
+        wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '.user_avatar')))
+    except:
+        traceback.print_exc()
+    try:
+        all_games = driver.find_elements_by_css_selector(".gameListRow")
+
+        for game in all_games:
+            game_css_id = game.get_attribute("id")
+            game_id = game_css_id.replace("game_", "")
+            game_name = game.find_element_by_css_selector(".gameListRowItem .gameListRowItemName").text
+            hours = game.find_element_by_css_selector(".gameListRowItem .hours_played").text.replace(" hrs on record",
+                                                                                                     "")
+            game_ids.append({"s": game_id, "n": game_name, "h": hours})
+
+        return game_ids
+    except:
+        traceback.print_exc()
+        #driver.get_screenshot_as_file(config.paths["chrome_screenshots_dir"] + "\\parse_" + Account.username + ".png")
+        # os.system("pause")
+
+
+def checkGames(driver, EmailNew, EmailNewPass, Steam, SteamPassNew, url, EmailOld, EmailPassNew):
+    wait = WebDriverWait(driver, 5)
+    ID64 = re.findall("\d+", url)[0]
+    url = str('https://steamcommunity.com/profiles/' + ID64 + '/gcpd/730/')
+    driver.get(url)
+    primeStatus = 'ERROR'
+    pRank = 'ERROR'
+    try:
+        wait.until(ec.element_to_be_clickable((By.XPATH, '//*[@id="tabid_accountmain"]')))
+        tables = driver.find_elements_by_class_name('generic_kv_table')
+        tables = tables[-1]
+        lines = tables.find_elements_by_class_name('generic_kv_line')
+        pRank = lines[2].text
+        pRank = int(re.findall("\d+", pRank)[0])
+        prime = checkPrime(driver, wait, pRank)
+        if prime == 1:
+            primeStatus = 'PRIME'
+        elif prime == 0:
+            primeStatus = 'NO PRIME'
+    except TimeoutException:
+        pass
+    CreateHeader(driver, EmailNew, EmailNewPass, Steam, SteamPassNew, url, EmailOld, EmailPassNew, primeStatus, pRank)
+
+
 def passgen(x):
     characters = string.ascii_letters + string.digits
-    password = "".join(choice(characters) for x in range(randint(10, 12)))
+    password = "".join(choice(characters) for x in range(randint(12, 14)))
     return password
 
 
-def LetsDeleteEverything(driver, url):
+def LetsDeleteEverything(driver, EmailNew, EmailNewPass, Steam, SteamPassNew, url, EmailOld, EmailPassNew):
+    checkGames(driver, EmailNew, EmailNewPass, Steam, SteamPassNew, url, EmailOld, EmailPassNew)
     CommentsShouldDie(driver, url)
     LeaveGroups(driver, url)
     PengingInvites(driver, url)
@@ -93,8 +297,14 @@ def jSonParse(driver, wait):
 def CommentsShouldDie(driver, url):
     wait = WebDriverWait(driver, 5)
     driver.get(url)
+    driver.execute_script("ChangeLanguage( 'english' )")
+    driver.get(url)
     GoNext = 0
+    #wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '#account_pulldown'))).click()
+    #wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '#account_language_pulldown'))).click()
+    #wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '#account_language_pulldown'))).click()
     wait.until(ec.element_to_be_clickable((By.XPATH, '/html/body/div[1]/div[7]/div[3]/div[1]/div[2]/div/div[2]/div[4]/div/div[1]/div[2]/span[1]')))
+
     while GoNext == 0:
         try:
             wait.until(ec.element_to_be_clickable((By.CLASS_NAME, 'commentthread_comment_content')))
@@ -109,7 +319,6 @@ def CommentsShouldDie(driver, url):
 
 
 def ChatShit(driver):
-    #will fix
     GoNext = 0
     wait = WebDriverWait(driver, 10)
     driver.get('https://steamcommunity.com/chat/')
@@ -119,7 +328,17 @@ def ChatShit(driver):
             time.sleep(0.5)
             el = driver.find_element_by_class_name('chatRoomListContainer')
             el.find_element_by_class_name('ContextMenuButton').click()
-            wait.until(ec.element_to_be_clickable((By.XPATH, "//body/div[5]/div/div/div[2]"))).click()
+            #if custom group
+            try:
+                driver.find_element_by_xpath('//body/div[5]/div/div/div[4]')
+                wait.until(ec.element_to_be_clickable((By.XPATH, "//body/div[5]/div/div/div[3]"))).click()
+            except NoSuchElementException:
+                pass
+            try:
+                driver.find_element_by_xpath('//body/div[5]/div/div/div[3]')
+                wait.until(ec.element_to_be_clickable((By.XPATH, "//body/div[5]/div/div/div[2]"))).click()
+            except NoSuchElementException:
+                pass
             wait.until(ec.element_to_be_clickable((By.XPATH, "//button[@type='submit']"))).click()
         except :
             GoNext = 1
@@ -163,7 +382,7 @@ def DeclineChat(driver):
             action.double_click(el).perform()
             el = wait.until(ec.element_to_be_clickable((By.XPATH, cyka10)))
             action.double_click(el).perform()
-        except TimeoutException:
+        except:
             GoNext = 1
 
 
@@ -385,8 +604,8 @@ def steam(wait):
 
 
 def shit(driver):
-    wTime = 0.3
-    time.sleep(wTime)
+    wTime = 0.1
+    time.sleep(10)
     try:
         time.sleep(wTime)
         driver.find_element_by_css_selector('.c2182').click()
@@ -490,6 +709,9 @@ def main(newLine, profile):
     loginIntoSteam(driver, wait, EmailNew, EmailNewPass, EmailOld, EmailOldPass)
     url = jSonParse(driver, wait)
     #testingPlace
+    SteamPassNew = '0'
+    EmailPassNew = '0'
+    LetsDeleteEverything(driver, EmailNew, EmailNewPass, Steam, SteamPassNew, url, EmailOld, EmailPassNew)
     print(url)
     driver.get('https://store.steampowered.com/account/')
     wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR,
@@ -663,6 +885,7 @@ def main(newLine, profile):
     driver.switch_to.window(driver.window_handles[0])
     driver.get('https://e.mail.ru/inbox/')
     wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '#PH_logoutLink'))).click()
+    driver.get('https://mail.ru/')
     wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '#mailbox\:login-input'))).clear()
     wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '#mailbox\:login-input'))).send_keys(EmailNew)
     wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '#mailbox\:submit-button'))).click()
@@ -711,7 +934,7 @@ def main(newLine, profile):
     wait.until(ec.element_to_be_clickable(
         (By.XPATH, '//*[@id="success_continue_btn"]'))).click()
     wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '.user_avatar'))).click()
-    LetsDeleteEverything(driver, url)
+    LetsDeleteEverything(driver, EmailNew, EmailNewPass, Steam, SteamPassNew, url, EmailOld, EmailPassNew)
     driver.get(linkTlock)
     wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '.help_wizard_button > span:nth-child(1)'))).click()
     time.sleep(1)
@@ -727,6 +950,7 @@ def main(newLine, profile):
         str(datetime.now()) + ' DONE!\n ' + data)
     f.write(data)
     f.close()
+    input("Press Enter to continue...")
     #driver.close()
 
 
