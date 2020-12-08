@@ -61,6 +61,8 @@ def retoggleAllTheAddons(driver):
 
 def posetil(wait, driver, tvar, user):
     logging.info(user + ' ' + str(datetime.now())+' '+driver.title+" visited")
+    if driver.current_url == "https://testmoodle.sevsu.ru/enrol/index.php?id=328":
+        driver.close()
     wait.until(ec.element_to_be_clickable((By.LINK_TEXT, 'Посещаемость')))
     try:
         driver.execute_script("""
@@ -75,21 +77,22 @@ def posetil(wait, driver, tvar, user):
     wait.until(ec.element_to_be_clickable((By.LINK_TEXT, 'Посещаемость')))
     try:
         driver.find_element_by_css_selector('.fgrouplabel > label')
-        wait.until(ec.element_to_be_clickable((By.XPATH, "//div[@id='fgroup_id_statusarray']/fieldset/span/label/span")))
+        wait.until(ec.element_to_be_clickable((By.XPATH, "//div[@id='fgroup_id_statusarray']/fieldset/span/label/span"))).click()
         logging.info(user + ' ' + str(datetime.now())+' '+driver.title+" checked")
     except NoSuchElementException:
         sleep(0)
         tvar = 1
     if tvar != 1:
-        wait.until(ec.element_to_be_clickable((By.XPATH, "//input[@id='id_status_375")))
+        wait.until(ec.element_to_be_clickable((By.XPATH, "//div/div/input"))).click()
         logging.info(user + ' ' + str(datetime.now())+' '+driver.title+" sent")
+
 
 def main(login, password):
     options = Options()
     options.headless = True
     binary = FirefoxBinary("C:\\Program Files\\Mozilla Firefox\\firefox.exe")
-    #profile = FirefoxProfile("C:\\Users\\USER\\AppData\\Roaming\\Mozilla\\Firefox\\Profiles\\8its4eb6.default")
-    profile = FirefoxProfile("C:\\Users\\PussyDestroyer\\AppData\\Roaming\\Mozilla\\Firefox\\Profiles\\7dvs7u3f.default")
+    profile = FirefoxProfile("C:\\Users\\USER\\AppData\\Roaming\\Mozilla\\Firefox\\Profiles\\8its4eb6.default")
+    #profile = FirefoxProfile("C:\\Users\\PussyDestroyer\\AppData\\Roaming\\Mozilla\\Firefox\\Profiles\\7dvs7u3f.default")
     driver = webdriver.Firefox(firefox_profile=profile, firefox_binary=binary)
     wait = WebDriverWait(driver, 600)
     tvar = 0
@@ -108,9 +111,9 @@ def main(login, password):
     posetil(wait, driver, tvar, login)
     driver.get('https://testmoodle.sevsu.ru/mod/attendance/view.php?id=71790&view=5')  # оср
     posetil(wait, driver, tvar, login)
-    driver.get('https://testmoodle.sevsu.ru/mod/attendance/view.php?id=18421&view=5')  # Проектирование микропроцессорных и компьютерных систем
-    posetil(wait, driver, tvar, login)
     driver.get('https://testmoodle.sevsu.ru/mod/attendance/view.php?id=18389&view=5')  # Сети и телекоммуникации
+    posetil(wait, driver, tvar, login)
+    driver.get('https://testmoodle.sevsu.ru/mod/attendance/view.php?id=18421&view=5')  # Проектирование микропроцессорных и компьютерных систем
     posetil(wait, driver, tvar, login)
     driver.close()
 

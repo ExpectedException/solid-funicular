@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="5f277cce-55e0-4c39-ab22-09c1b9949ef8" name="Default Changelist" comment="" />
+    <list default="true" id="5f277cce-55e0-4c39-ab22-09c1b9949ef8" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/tests.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../MailG.py" beforeDir="false" afterPath="$PROJECT_DIR$/../MailG.py" afterDir="false" />
+    </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -23,7 +26,7 @@
         <entry file="file://$PROJECT_DIR$/../../../SteamFish/AutoSteal/AutoSteal/advanced/parse_games.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="176">
-              <caret line="128" column="4" lean-forward="true" selection-start-line="128" selection-start-column="4" selection-end-line="128" selection-end-column="4" />
+              <caret line="128" column="4" selection-start-line="128" selection-start-column="4" selection-end-line="128" selection-end-column="4" />
               <folding>
                 <element signature="e#0#55#0" expanded="true" />
               </folding>
@@ -46,8 +49,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/../checker.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="6348">
-              <caret line="389" column="38" selection-start-line="389" selection-start-column="38" selection-end-line="389" selection-end-column="38" />
+            <state relative-caret-position="565">
+              <caret line="384" selection-start-line="384" selection-end-line="384" selection-end-column="26" />
               <folding>
                 <element signature="e#0#43#0" expanded="true" />
               </folding>
@@ -67,8 +70,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/tests.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="220">
-              <caret line="10" column="8" selection-start-line="10" selection-start-column="8" selection-end-line="10" selection-end-column="8" />
+            <state relative-caret-position="3377">
+              <caret line="233" column="16" selection-start-line="233" selection-start-column="16" selection-end-line="233" selection-end-column="16" />
               <folding>
                 <element signature="e#0#15#0" expanded="true" />
               </folding>
@@ -110,12 +113,15 @@
       <find>\\</find>
       <find>driver.get</find>
       <find>enco</find>
+      <find>:s</find>
     </findStrings>
     <replaceStrings>
       <replace>/</replace>
       <replace>//</replace>
       <replace>\\</replace>
       <replace>\</replace>
+      <replace>: s</replace>
+      <replace>dto</replace>
     </replaceStrings>
   </component>
   <component name="Git.Settings">
@@ -132,15 +138,14 @@
       </list>
     </option>
   </component>
-  <component name="ProjectFrameBounds" extendedState="6">
-    <option name="x" value="305" />
-    <option name="y" value="119" />
-    <option name="width" value="2240" />
-    <option name="height" value="1252" />
+  <component name="ProjectFrameBounds" extendedState="7">
+    <option name="x" value="461" />
+    <option name="width" value="1581" />
+    <option name="height" value="1087" />
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectView">
-    <navigator proportions="" version="1">
+    <navigator currentView="Scope" currentSubView="Scope 'Project Files'; set:Project Files; class com.intellij.psi.search.scope.ProjectFilesScope" proportions="" version="1">
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
@@ -159,7 +164,17 @@
           <select />
         </subPane>
       </pane>
-      <pane id="Scope" />
+      <pane id="Scope">
+        <subPane subId="Scope 'Project Files'; set:Project Files; class com.intellij.psi.search.scope.ProjectFilesScope">
+          <expand>
+            <path>
+              <item name="EducationalPurposeOnly" type="3d21c010:ScopeViewTreeModel$ProjectNode" />
+              <item name="C:\Users\PussyDestroyer\Documents\GitHub\ShinyPython\EducationalPurposeOnly" type="442cc68d:ScopeViewTreeModel$RootNode" />
+            </path>
+          </expand>
+          <select />
+        </subPane>
+      </pane>
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -315,7 +330,7 @@
       <workItem from="1606037462341" duration="3606000" />
       <workItem from="1606577270918" duration="7145000" />
       <workItem from="1606672648435" duration="2648000" />
-      <workItem from="1606725754491" duration="4631000" />
+      <workItem from="1606725754491" duration="19597000" />
     </task>
     <task id="LOCAL-00001" summary="Created/Updated">
       <created>1605451051613</created>
@@ -349,24 +364,23 @@
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="38883000" />
+    <option name="totallyTimeSpent" value="53849000" />
   </component>
   <component name="ToolWindowManager">
-    <frame x="-8" y="-8" width="2576" height="1456" extended-state="6" />
-    <editor active="true" />
+    <frame x="-8" y="-8" width="2576" height="1456" extended-state="7" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.13556619" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.13556619" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" />
-      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.49960127" weight="0.22273426" />
-      <window_info active="true" anchor="bottom" id="Debug" order="3" visible="true" weight="0.25422427" />
+      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.49960127" visible="true" weight="0.22273426" />
+      <window_info anchor="bottom" id="Debug" order="3" weight="0.25422427" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="6" />
       <window_info anchor="bottom" id="Docker" order="7" show_stripe_button="false" />
-      <window_info anchor="bottom" id="Version Control" order="8" weight="0.32872504" />
+      <window_info anchor="bottom" id="Version Control" order="8" weight="0.19892474" />
       <window_info anchor="bottom" id="Database Changes" order="9" />
       <window_info anchor="bottom" id="Event Log" order="10" sideWeight="0.5003987" side_tool="true" weight="0.32872504" />
       <window_info anchor="bottom" id="Terminal" order="11" weight="0.32872504" />
@@ -383,25 +397,40 @@
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="1" />
   </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State>
+              <option name="RECENTLY_FILTERED_USER_GROUPS">
+                <collection />
+              </option>
+              <option name="RECENTLY_FILTERED_BRANCH_GROUPS">
+                <collection />
+              </option>
+              <option name="COLUMN_ORDER">
+                <list>
+                  <option value="0" />
+                  <option value="1" />
+                  <option value="2" />
+                  <option value="3" />
+                </list>
+              </option>
+            </State>
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Created/Updated" />
     <option name="LAST_COMMIT_MESSAGE" value="Created/Updated" />
   </component>
-  <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/tests.py</url>
-          <line>9</line>
-          <option name="timeStamp" value="3" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
-  </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/EducationalPurposeOnly$req.coverage" NAME="req Coverage Results" MODIFIED="1605452582687" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/EducationalPurposeOnly$checker.coverage" NAME="checker Coverage Results" MODIFIED="1605893029603" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/.." />
-    <SUITE FILE_PATH="coverage/EducationalPurposeOnly$tests.coverage" NAME="tests Coverage Results" MODIFIED="1606900016121" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/EducationalPurposeOnly$tests.coverage" NAME="tests Coverage Results" MODIFIED="1606996038734" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/EducationalPurposeOnly$imap_testing.coverage" NAME="imap_testing Coverage Results" MODIFIED="1605473249552" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/EducationalPurposeOnly$requests.coverage" NAME="requests Coverage Results" MODIFIED="1605451760431" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
@@ -488,7 +517,7 @@
     <entry file="file://$PROJECT_DIR$/../../../SteamFish/AutoSteal/AutoSteal/advanced/parse_games.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="176">
-          <caret line="128" column="4" lean-forward="true" selection-start-line="128" selection-start-column="4" selection-end-line="128" selection-end-column="4" />
+          <caret line="128" column="4" selection-start-line="128" selection-start-column="4" selection-end-line="128" selection-end-column="4" />
           <folding>
             <element signature="e#0#55#0" expanded="true" />
           </folding>
@@ -505,16 +534,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/../checker.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="6348">
-          <caret line="389" column="38" selection-start-line="389" selection-start-column="38" selection-end-line="389" selection-end-column="38" />
-          <folding>
-            <element signature="e#0#43#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://C:/Progi/Anaconda3/Lib/threading.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="910">
@@ -522,10 +541,20 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/../checker.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="565">
+          <caret line="384" selection-start-line="384" selection-end-line="384" selection-end-column="26" />
+          <folding>
+            <element signature="e#0#43#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/tests.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="220">
-          <caret line="10" column="8" selection-start-line="10" selection-start-column="8" selection-end-line="10" selection-end-column="8" />
+        <state relative-caret-position="3377">
+          <caret line="233" column="16" selection-start-line="233" selection-start-column="16" selection-end-line="233" selection-end-column="16" />
           <folding>
             <element signature="e#0#15#0" expanded="true" />
           </folding>
