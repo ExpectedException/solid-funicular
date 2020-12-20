@@ -155,8 +155,8 @@ def main(accname, Email, Passwd):
         Passwd)
     wait.until(ec.element_to_be_clickable(
         (By.XPATH, '/html/body/div[2]/div[2]/div/div/div[2]/form/button[1]/span'))).click()
-    wait.until(ec.element_to_be_clickable((By.XPATH, '/html/body/div[2]/div[2]/div/div/div[2]/div/button/span'))).click()
     sav(Email, Passwd)
+    wait.until(ec.element_to_be_clickable((By.XPATH, '/html/body/div[2]/div[2]/div/div/div[2]/div/button/span'))).click()
     #wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, 'button.base-0-2-77:nth-child(1) > div:nth-child(1) > svg:nth-child(1)'))).click()
     #wait.until(ec.element_to_be_clickable((By.XPATH, '/html/body/div[2]/div[2]/div/div/div[2]/form/div[4]/button[1]/span'))).click()
     #wait.until(ec.element_to_be_clickable((By.XPATH, '/html/body/div[2]/div[2]/div/div/div[2]/div/button/span'))).click()
