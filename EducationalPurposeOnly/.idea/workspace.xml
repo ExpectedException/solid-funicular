@@ -1,10 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="5f277cce-55e0-4c39-ab22-09c1b9949ef8" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../MailG.py" beforeDir="false" afterPath="$PROJECT_DIR$/../MailG.py" afterDir="false" />
-    </list>
+    <list default="true" id="5f277cce-55e0-4c39-ab22-09c1b9949ef8" name="Default Changelist" comment="" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -86,8 +83,8 @@
     </option>
   </component>
   <component name="ProjectFrameBounds" extendedState="7">
-    <option name="x" value="1197" />
-    <option name="y" value="239" />
+    <option name="x" value="1190" />
+    <option name="y" value="240" />
     <option name="width" value="1370" />
     <option name="height" value="1200" />
   </component>
